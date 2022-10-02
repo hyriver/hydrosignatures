@@ -1,0 +1,25 @@
+name: hydrosignatures-tests
+channels:
+  - numba
+  - conda-forge
+  - nodefaults
+dependencies:
+  # hydrosignatures deps
+  - numpy
+  - pandas
+  - xarray
+  - numba
+  - scipy
+
+  # test deps
+  - pygeohydro
+  - psutil
+  - pytest-cov
+  - pytest-xdist
+
+  - pip
+  - pip:
+    - git+https://github.com/hyriver/async_retriever.git
+    - git+https://github.com/hyriver/pygeoogc.git
+    - git+https://github.com/hyriver/pygeoutils.git
+    - git+https://github.com/hyriver/pygeohydro.git

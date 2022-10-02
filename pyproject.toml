@@ -1,0 +1,54 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "setuptools_scm[toml]>=3.4",
+    "setuptools_scm_git_archive",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+fallback_version = "999"
+
+[tool.pytest.ini_options]
+addopts = "--ignore=noxfile.py -n=auto -v --cov=hydrosignatures --cov-report xml --durations=5"
+doctest_optionflags = 'NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL NUMBER'
+testpaths = [
+    "tests",
+    "hydrosignatures",
+]
+filterwarnings =[
+    "ignore:.*distutils.*",
+]
+
+[tool.mypy]
+strict = true
+check_untyped_defs = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+pretty = true
+show_column_numbers = true
+show_error_codes = true
+show_error_context = true
+disallow_untyped_decorators = false
+
+[tool.isort]
+profile = "black"
+default_section = "THIRDPARTY"
+known_first_party = "hydrosignatures"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 100
+
+[tool.pycln]
+expand_stars = true
+verbose = true
+all = true
+no_gitignore = false
+
+[tool.black]
+line-length = 100
+target-version = ['py38']

@@ -1,0 +1,6 @@
+[report]
+omit =
+    setup.py
+    tests/*
+    hydrosignatures/__init__.py
+    hydrosignatures/print_versions.py

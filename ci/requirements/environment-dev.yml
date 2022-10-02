@@ -1,0 +1,95 @@
+name: hyriver-dev
+channels:
+  - numba
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python>=3.10
+
+  # async_retriever
+  - aiodns
+  - aiohttp>=3.8.1
+  - aiohttp-client-cache>=0.7.3
+  - aiosqlite
+  - brotli
+  - loguru
+  - cchardet
+  - cytoolz
+  - ujson
+
+  # pygeoogc deps
+  - defusedxml
+  - owslib>=0.27.2
+  - pyyaml
+  - pyproj>=1.2
+  - requests
+  - requests-cache>=0.9.6
+  - shapely>=1.8
+  - urllib3
+
+  # pygeoutils deps
+  - dask-core
+  - geopandas>=0.8
+  - netcdf4
+  - numpy>=1.17
+  - pygeos
+  - rasterio>=1.2
+  - scipy
+  - xarray>=2022.03.0
+  - rioxarray>=0.11
+
+  # py3dep
+  - click>=0.7
+  - richdem>=0.3.4
+
+  # pynhd deps
+  - networkx>=2.5
+  - pandas>=1.0
+  - pyarrow>=1.0.1
+
+  # pygeohydro deps
+  - folium
+  - h5netcdf
+  - lxml
+  - proplot
+
+  # hydrosignatures deps
+  - numba
+
+  # optional deps to speed up xarray and numba
+  - bottleneck
+  - icc_rt
+
+  # example notebooks' deps
+  - cartopy
+  - mapclassify
+  - contextily
+  - geoviews
+  - hvplot
+  - osmnx
+  - tqdm
+  - pytables
+  - ffmpeg
+  - jupyterlab_widgets
+  - ipykernel
+  - ipywidgets
+
+  # dev deps
+  - codespell
+  - nox
+  - pre-commit
+  - psutil
+  - pytest
+  - pytest-cov
+  - pytest-xdist
+
+  - pip
+  - pip:
+    - git+https://github.com/hyriver/async_retriever.git
+    - git+https://github.com/hyriver/pygeoogc.git
+    - git+https://github.com/hyriver/pygeoutils.git
+    - git+https://github.com/hyriver/pynhd.git
+    - git+https://github.com/hyriver/py3dep.git
+    - git+https://github.com/hyriver/pydaymet.git
+    - git+https://github.com/hyriver/pygeohydro.git
+    - git+https://github.com/hyriver/hydrosignatures.git
