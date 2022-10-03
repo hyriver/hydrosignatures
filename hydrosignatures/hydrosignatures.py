@@ -263,7 +263,7 @@ def compute_si_markham(qobs_df: Union[pd.Series, pd.DataFrame]) -> pd.DataFrame:
     s = s.T.sum()
     c = pm_norm.T * np.cos(phi_m)
     c = c.T.sum()
-    pr = np.sqrt(s**2 + c**2)
+    pr = np.hypot(s, c)
     phi = np.rad2deg(np.arctan(s / c))
     phi[(s < 0) & (c > 0)] += 360.0
     phi[c < 0] += 180.0
