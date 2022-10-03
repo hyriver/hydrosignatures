@@ -237,7 +237,7 @@ Now, we can pass these two to the ``HydroSignatures`` class:
 
     sig = HydroSignatures(q_mmpd, p_mmpd)
 
-The ``sig.values`` property of this class contains the computed signatures. For example,
+The ``values`` property of this class contains the computed signatures. For example,
 let's plot the regime curves:
 
 .. code:: python
