@@ -10,13 +10,6 @@ import pytest
 
 import hydrosignatures as hs
 
-try:
-    import typeguard  # noqa: F401
-except ImportError:
-    has_typeguard = False
-else:
-    has_typeguard = True
-
 
 def assert_close(a: float, b: float) -> bool:
     assert np.isclose(a, b, rtol=1e-3).all()
@@ -30,7 +23,6 @@ def datasets() -> Tuple[pd.Series, pd.Series, Dict[str, Any]]:
     return df.q_mmpd, df.p_mmpd, sig_expected
 
 
-@pytest.mark.skipif(has_typeguard, reason="Broken if Typeguard is enabled")
 def test_signatures(datasets):
     q_mmpd, p_mmpd, sig_expected = datasets
     sig = hs.HydroSignatures(q_mmpd, p_mmpd)

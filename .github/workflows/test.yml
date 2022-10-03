@@ -61,6 +61,7 @@ jobs:
           pytest
       - name: Run typeguard
         run: |-
+          micromamba remove numba
           micromamba install typeguard
           pytest --typeguard-packages=${REPO_NAME}
       - name: Run codecov and upload the report
