@@ -134,7 +134,8 @@ and inequality operators, which can be used to compare two HydroSignatures objec
 You can serialize the object to a JSON file using the ``to_json`` method or convert it
 to a dictionary using the ``to_dict`` method.
 
-All the functions are performant and efficient since have been implemented using ``numba``.
+Moreover, ``numba`` is an optional dependency for the ``compute_baseflow`` function.
+Installing ``numba`` will speed up the computation of the baseflow significantly. 
 
 You can also try using HydroSignatures without installing
 it on your system by clicking on the binder badge. A Jupyter Lab
