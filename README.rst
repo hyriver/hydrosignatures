@@ -109,9 +109,9 @@ HydroSignatures: Tools for computing hydrological signatures
 Features
 --------
 
-HydroSignatures is a part of `HyRiver <https://github.com/hyriver/HyRiver>`__ software
-stack that is a suite of tools for computing hydrological signatures.
-It includes the following functions:
+HydroSignatures is a suite of tools for computing hydrological signatures
+and a part of `HyRiver <https://github.com/hyriver/HyRiver>`__ software stack.
+This package includes the following functions:
 
 - ``compute_exceedance``: Exceedance probability that can be used plotting flow
   duration curves;
