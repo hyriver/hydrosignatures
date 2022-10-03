@@ -161,7 +161,7 @@ def __batch_backward(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np
 def compute_baseflow(
     discharge: ARRAY, alpha: float = 0.925, n_passes: int = 3, pad_width: int = 10
 ) -> ARRAY:
-    """Compute the baseflow index using the Lyne and Hollick filter (Ladson et al., 2013).
+    """Extract baseflow using the Lyne and Hollick filter (Ladson et al., 2013).
 
     Parameters
     ----------
@@ -222,12 +222,32 @@ def compute_baseflow(
     return qb
 
 
-def compute_bfi(q: npt.NDArray[np.float64], alpha: float) -> np.float64:
-    """Compute Baseflow Index."""
-    qsum = q.sum()
+def compute_bfi(
+    discharge: ARRAY, alpha: float = 0.925, n_passes: int = 3, pad_width: int = 10
+) -> np.float64:
+    """Compute the baseflow index using the Lyne and Hollick filter (Ladson et al., 2013).
+
+    Parameters
+    ----------
+    discharge : numpy.ndarray or pandas.DataFrame or pandas.Series or xarray.DataArray
+        Discharge time series that must not have any missing values. It can also be a 2D array
+        where each row is a time series.
+    n_passes : int, optional
+        Number of filter passes, defaults to 3. It must be an odd number greater than 3.
+    alpha : float, optional
+        Filter parameter that must be between 0 and 1, defaults to 0.925.
+    pad_width : int, optional
+        Padding width for extending the data from both ends to address the warm up issue.
+
+    Returns
+    -------
+    numpy.float64
+        The baseflow index.
+    """
+    qsum = discharge.sum()
     if qsum < EPS:
         return np.float64(0.0)
-    qb = compute_baseflow(q, alpha=alpha)
+    qb = compute_baseflow(discharge, alpha, n_passes, pad_width)
     return qb.sum() / qsum
 
 
@@ -246,13 +266,13 @@ def compute_si_walsh(data: Union[pd.Series, pd.DataFrame]) -> pd.Series:
     return si
 
 
-def compute_si_markham(qobs_df: Union[pd.Series, pd.DataFrame]) -> pd.DataFrame:
+def compute_si_markham(data: Union[pd.Series, pd.DataFrame]) -> pd.DataFrame:
     """Compute seasonality index based on Markham, 1970."""
-    if isinstance(qobs_df, pd.Series):
-        qobs_df = qobs_df.to_frame()
-    monthly = qobs_df.resample("M", kind="period").sum()
+    if isinstance(data, pd.Series):
+        data = data.to_frame()
+    monthly = data.resample("M", kind="period").sum()
     pm = monthly.groupby(monthly.index.month).sum()
-    pm_norm = pm / len(qobs_df.index.year.unique())
+    pm_norm = pm / len(data.index.year.unique())
     phi_m = pd.Series(
         np.deg2rad(
             [15.8, 44.9, 74.0, 104.1, 134.1, 164.2, 194.3, 224.9, 255.0, 285.0, 315.1, 345.2]
