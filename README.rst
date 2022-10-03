@@ -135,7 +135,7 @@ You can serialize the object to a JSON file using the ``to_json`` method or conv
 to a dictionary using the ``to_dict`` method.
 
 Moreover, ``numba`` is an optional dependency for the ``compute_baseflow`` function.
-Installing ``numba`` will speed up the computation of the baseflow significantly. 
+Installing ``numba`` will speed up the computation of the baseflow significantly.
 
 You can also try using HydroSignatures without installing
 it on your system by clicking on the binder badge. A Jupyter Lab
