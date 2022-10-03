@@ -119,8 +119,8 @@ It includes the following functions:
   for plotting regime curves;
 - ``compute_rolling_mean_monthly``: Rolling mean monthly summary of a time series
   that can be used for plotting smoothed regime curves;
-- ``compute_baseflow``: Extracting baseflow from a streamflow time series using
-    the Lyne and Hollick digital filter (Ladson et al., 2013);
+- ``compute_baseflow``: Extracting baseflow from a streamflow time series using the
+  Lyne and Hollick digital filter (Ladson et al., 2013);
 - ``compute_bfi``: Baseflow index;
 - ``compute_si_walsh``: Seasonality index (Walsh and Lawler, 1981);
 - ``compute_si_markham``: Seasonality index (Markham, 1970);
