@@ -1,23 +1,51 @@
 """Function for computing hydrologic signature."""
 import calendar
-from dataclasses import dataclass
 import functools
+import json
+import warnings
+from dataclasses import dataclass
 from typing import Dict, NamedTuple, Tuple, TypeVar, Union
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
-import xarray as xr
-from numba import prange, njit
 from scipy import signal
 
 from .exceptions import InputRangeError, InputTypeError, InputValueError
 
-ngjit = functools.partial(njit, cache=True, nogil=True)
+try:
+    import xarray as xr
+
+    HAS_XARRAY = True
+except ImportError:
+    HAS_XARRAY = False
+
+try:
+    from numba import njit, prange
+
+    ngjit = functools.partial(njit, cache=True, nogil=True)
+    HAS_NUMBA = True
+except ImportError:
+    HAS_NUMBA = False
+    prange = range
+
+    def ngjit(ntypes, parallel=None):  # type: ignore
+        def decorator_njit(func):  # type: ignore
+            @functools.wraps(func)
+            def wrapper_decorator(*args, **kwargs):  # type: ignore
+                return func(*args, **kwargs)
+
+            return wrapper_decorator
+
+        return decorator_njit
+
 
 EPS = np.float64(1e-6)
 DF = TypeVar("DF", pd.DataFrame, pd.Series)
-ARRAY = TypeVar("ARRAY", pd.Series, pd.DataFrame, npt.NDArray[np.float64], xr.DataArray)
+if HAS_XARRAY:
+    ARRAY = TypeVar("ARRAY", pd.Series, pd.DataFrame, npt.NDArray[np.float64], xr.DataArray)
+else:
+    ARRAY = TypeVar("ARRAY", pd.Series, pd.DataFrame, npt.NDArray[np.float64])  # type: ignore
 
 __all__ = [
     "HydroSignatures",
@@ -152,6 +180,9 @@ def compute_baseflow(
     numpy.ndarray or pandas.DataFrame or pandas.Series or xarray.DataArray
         Same discharge input array-like but values replaced with computed baseflow values.
     """
+    if not HAS_NUMBA:
+        warnings.warn("Numba not installed. Using slow pure python version.", UserWarning)
+
     if n_passes < 3 or n_passes % 2 == 0:
         raise InputRangeError("n_passes", "odd numbers greater than 2")
 
@@ -160,7 +191,7 @@ def compute_baseflow(
 
     if isinstance(discharge, (pd.Series, pd.DataFrame)):
         q = discharge.to_numpy("f8")
-    elif isinstance(discharge, xr.DataArray):
+    elif HAS_XARRAY and isinstance(discharge, xr.DataArray):
         q = discharge.astype("f8").to_numpy()
     else:
         q = discharge.astype("f8")
@@ -186,12 +217,11 @@ def compute_baseflow(
         return pd.Series(qb, index=discharge.index)
     if isinstance(discharge, pd.DataFrame):
         return pd.DataFrame(qb, index=discharge.index, columns=discharge.columns)
-    if isinstance(discharge, xr.DataArray):
+    if HAS_XARRAY and isinstance(discharge, xr.DataArray):
         return discharge.copy(data=qb)
     return qb
 
 
-@ngjit("f8(f8[::1])")
 def compute_bfi(q: npt.NDArray[np.float64], alpha: float) -> np.float64:
     """Compute Baseflow Index."""
     qsum = q.sum()
@@ -333,7 +363,7 @@ class SignaturesFloat(NamedTuple):
     runoff_ratio: np.float64
     runoff_ratio_anual: np.float64
     fdc_slope: np.float64
-    mean_monthly: np.float64
+    mean_monthly: pd.DataFrame
     streamflow_elasticity: np.float64
     seasonality_index: np.float64
     mean_annual_flood: np.float64
@@ -352,8 +382,8 @@ class HydroSignatures:
     si_method : str, optional
         Seasonality index method. Either ``walsh`` or ``markham``. Default is ``walsh``.
     fdc_slope_limits : tuple or list of tuples, optional
-        The lower or upper bound to compute the slope of FDC within it,
-        defaults to ``(0.33, 0.66)``.
+        The lower or upper bound percentages to compute the slope of FDC within it,
+        defaults to ``(33, 66)``.
     bfi_alpha : float, optional
         Alpha parameter for baseflow separation filter using Lyne and Hollick method.
         Default is ``0.925``.
@@ -362,7 +392,7 @@ class HydroSignatures:
     q_mmpt: pd.Series
     p_mmpt: pd.Series
     si_method: str = "walsh"
-    fdc_slope_limits: Tuple[float, float] = (0.33, 0.66)
+    fdc_slope_limits: Tuple[float, float] = (33, 66)
     bfi_alpha: float = 0.925
 
     def __post_init__(self) -> None:
@@ -371,6 +401,20 @@ class HydroSignatures:
 
         if len(self.q_mmpt) != len(self.p_mmpt):
             raise InputTypeError("q_cms/p_mmpd", "dataframes with same length")
+
+        if not all(0 < p < 100 for p in self.fdc_slope_limits):
+            raise InputRangeError("fdc_slope_limits", "between 0 and 100")
+
+        self._values = SignaturesFloat(
+            self.bfi(),
+            self.runoff_ratio(),
+            self.runoff_ratio_annual(),
+            self.fdc_slope(),
+            self.mean_monthy(),
+            self.streamflow_elasticity(),
+            self.seasonality_index(),
+            self.mean_annual_flood(),
+        )
 
     def bfi(self) -> np.float64:
         """Compute Baseflow Index."""
@@ -391,7 +435,12 @@ class HydroSignatures:
 
     def mean_monthy(self) -> pd.DataFrame:
         """Compute mean monthly flow (for regime curve)."""
-        return compute_mean_monthly(self.q_mmpt, index_abbr=True)
+        return pd.DataFrame(
+            {
+                "streamflow": compute_mean_monthly(self.q_mmpt, index_abbr=True),
+                "precipitation": compute_mean_monthly(self.p_mmpt, index_abbr=True),
+            }
+        )
 
     def seasonality_index(self) -> np.float64:
         """Compute seasonality index."""
@@ -408,7 +457,7 @@ class HydroSignatures:
     def fdc_slope(self) -> np.float64:
         """Compute FDC slopes between a list of lower and upper percentiles."""
         if not isinstance(self.fdc_slope_limits, (tuple, list)) or len(self.fdc_slope_limits) != 2:
-            raise InputTypeError("fdc_slope_limits", "tuple of length 2", "(0.33, 0.66)")
+            raise InputTypeError("fdc_slope_limits", "tuple of length 2", "(33, 66)")
         lo, hi = self.fdc_slope_limits
         q_ranked = self.fdc()
         q_hi = q_ranked[q_ranked.q_rank >= hi].iloc[0].q
@@ -417,25 +466,17 @@ class HydroSignatures:
 
     def streamflow_elasticity(self) -> np.float64:
         """Compute streamflow elasticity."""
-        qam = self.q_mmpt.groupby(pd.Grouper(freq="Y")).mean()
-        pam = self.p_mmpt.groupby(pd.Grouper(freq="Y")).mean()
+        qam = self.q_mmpt.resample("Y").mean()
+        pam = self.p_mmpt.resample("Y").mean()
         return np.nanmedian(qam.diff() / pam.diff() * pam / qam)
 
+    @property
     def values(self) -> SignaturesFloat:
         """Return a dictionary with the hydrologic signatures."""
-        return SignaturesFloat(
-            self.bfi(),
-            self.runoff_ratio(),
-            self.runoff_ratio_annual(),
-            self.fdc_slope(),
-            self.mean_monthy(),
-            self.streamflow_elasticity(),
-            self.seasonality_index(),
-            self.mean_annual_flood(),
-        )
+        return self._values
 
-    @staticmethod
-    def signature_names() -> Dict[str, str]:
+    @property
+    def signature_names(self) -> Dict[str, str]:
         """Return a dictionary with the hydrologic signatures."""
         return {
             "bfi": "Baseflow Index",
@@ -448,12 +489,22 @@ class HydroSignatures:
             "mean_annual_flood": "Mean Annual Flood",
         }
 
+    def to_dict(self) -> Dict[str, Union[np.float64, Dict[str, Dict[str, np.float64]]]]:
+        """Return a dictionary with the hydrologic signatures."""
+        sigd = self.values._asdict()
+        sigd["mean_monthly"] = self.values.mean_monthly.to_dict()
+        return sigd
+
+    def to_json(self) -> str:
+        """Return a JSON string with the hydrologic signatures."""
+        return json.dumps(self.to_dict())
+
     def diff(self, other: "HydroSignatures") -> SignaturesFloat:
         """Compute absolute difference between two hydrologic signatures."""
         if not isinstance(other, HydroSignatures):
             raise InputTypeError("other", "HydroSignatures")
-        this = self.values()._asdict()
-        _other = other.values()._asdict()
+        this = self.values._asdict()
+        _other = other.values._asdict()
         return SignaturesFloat(
             **{key: abs(this[key] - _other[key]) for key in SignaturesFloat._fields}
         )
@@ -462,8 +513,8 @@ class HydroSignatures:
         """Check if the signatures are close between with a tolerance of 1e-3."""
         if not isinstance(other, HydroSignatures):
             raise InputTypeError("other", "HydroSignatures")
-        this = self.values()._asdict()
-        _other = other.values()._asdict()
+        this = self.values._asdict()
+        _other = other.values._asdict()
         return SignaturesBool(
             **{
                 key: np.isclose(this[key], _other[key], rtol=1.0e-3)
@@ -475,38 +526,38 @@ class HydroSignatures:
         """Subtract two hydrologic signatures."""
         if not isinstance(other, HydroSignatures):
             raise InputTypeError("other", "HydroSignatures")
-        this = self.values()._asdict()
-        _other = other.values()._asdict()
+        this = self.values._asdict()
+        _other = other.values._asdict()
         return SignaturesFloat(**{key: this[key] - _other[key] for key in SignaturesFloat._fields})
 
     def __lt__(self, other: "HydroSignatures") -> SignaturesBool:
         """Less than two hydrologic signatures."""
         if not isinstance(other, HydroSignatures):
             raise InputTypeError("other", "HydroSignatures")
-        this = self.values()._asdict()
-        _other = other.values()._asdict()
+        this = self.values._asdict()
+        _other = other.values._asdict()
         return SignaturesBool(**{key: this[key] < _other[key] for key in SignaturesBool._fields})
 
     def __le__(self, other: "HydroSignatures") -> SignaturesBool:
         """Less than or equal to two hydrologic signatures."""
         if not isinstance(other, HydroSignatures):
             raise InputTypeError("other", "HydroSignatures")
-        this = self.values()._asdict()
-        _other = other.values()._asdict()
+        this = self.values._asdict()
+        _other = other.values._asdict()
         return SignaturesBool(**{key: this[key] <= _other[key] for key in SignaturesBool._fields})
 
     def __gt__(self, other: "HydroSignatures") -> SignaturesBool:
         """Greater than two hydrologic signatures."""
         if not isinstance(other, HydroSignatures):
             raise InputTypeError("other", "HydroSignatures")
-        this = self.values()._asdict()
-        _other = other.values()._asdict()
+        this = self.values._asdict()
+        _other = other.values._asdict()
         return SignaturesBool(**{key: this[key] > _other[key] for key in SignaturesBool._fields})
 
     def __ge__(self, other: "HydroSignatures") -> SignaturesBool:
         """Greater than or equal to two hydrologic signatures."""
         if not isinstance(other, HydroSignatures):
             raise InputTypeError("other", "HydroSignatures")
-        this = self.values()._asdict()
-        _other = other.values()._asdict()
+        this = self.values._asdict()
+        _other = other.values._asdict()
         return SignaturesBool(**{key: this[key] >= _other[key] for key in SignaturesBool._fields})
