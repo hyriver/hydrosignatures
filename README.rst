@@ -21,8 +21,8 @@
     :target: https://github.com/hyriver/pygeoutils/actions/workflows/test.yml
     :alt: Github Actions
 
-.. |hydrosignatures| image:: https://github.com/hyriver/hydrosignatures/actions/workflows/test.yml/badge.svg
-    :target: https://github.com/hyriver/hydrosignatures/actions/workflows/test.yml
+.. |pynhd| image:: https://github.com/hyriver/pynhd/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/hyriver/pynhd/actions/workflows/test.yml
     :alt: Github Actions
 
 .. |py3dep| image:: https://github.com/hyriver/py3dep/actions/workflows/test.yml/badge.svg
@@ -37,28 +37,34 @@
     :target: https://github.com/hyriver/async-retriever/actions/workflows/test.yml
     :alt: Github Actions
 
-=============== ==================================================================== ============
-Package         Description                                                          Status
-=============== ==================================================================== ============
-PyNHD_          Navigate and subset NHDPlus (MR and HR) using web services           |hydrosignatures|
-Py3DEP_         Access topographic data through National Map's 3DEP web service      |py3dep|
-PyGeoHydro_     Access NWIS, NID, WQP, HCDN 2009, NLCD, CAMELS, and SSEBop databases |pygeohydro|
-PyDaymet_       Access daily, monthly, and annual climate data via Daymet            |pydaymet|
-AsyncRetriever_ High-level API for asynchronous requests with persistent caching     |async|
-PyGeoOGC_       Send queries to any ArcGIS RESTful-, WMS-, and WFS-based services    |pygeoogc|
-PyGeoUtils_     Utilities for manipulating geospatial, (Geo)JSON, and (Geo)TIFF data |pygeoutils|
-=============== ==================================================================== ============
+.. |signatures| image:: https://github.com/hyriver/hydrosignatures/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/hyriver/hydrosignatures/actions/workflows/test.yml
+    :alt: Github Actions
+
+================ ==================================================================== ============
+Package          Description                                                          Status
+================ ==================================================================== ============
+PyNHD_           Navigate and subset NHDPlus (MR and HR) using web services           |pynhd|
+Py3DEP_          Access topographic data through National Map's 3DEP web service      |py3dep|
+PyGeoHydro_      Access NWIS, NID, WQP, HCDN 2009, NLCD, CAMELS, and SSEBop databases |pygeohydro|
+PyDaymet_        Access daily, monthly, and annual climate data via Daymet            |pydaymet|
+HydroSignatures_ A collection of tools for computing hydrological signatures          |signatures|
+AsyncRetriever_  High-level API for asynchronous requests with persistent caching     |async|
+PyGeoOGC_        Send queries to any ArcGIS RESTful-, WMS-, and WFS-based services    |pygeoogc|
+PyGeoUtils_      Utilities for manipulating geospatial, (Geo)JSON, and (Geo)TIFF data |pygeoutils|
+================ ==================================================================== ============
 
 .. _PyGeoHydro: https://github.com/hyriver/pygeohydro
 .. _AsyncRetriever: https://github.com/hyriver/async-retriever
 .. _PyGeoOGC: https://github.com/hyriver/pygeoogc
 .. _PyGeoUtils: https://github.com/hyriver/pygeoutils
-.. _PyNHD: https://github.com/hyriver/hydrosignatures
+.. _PyNHD : https://github.com/hyriver/pynhd
 .. _Py3DEP: https://github.com/hyriver/py3dep
 .. _PyDaymet: https://github.com/hyriver/pydaymet
+.. _HydroSignatures: https://github.com/hyriver/hydrosignatures
 
-PyNHD: Navigate and subset NHDPlus database
--------------------------------------------
+HydroSignatures: Tools for computing hydrological signatures
+------------------------------------------------------------
 
 .. image:: https://img.shields.io/pypi/v/hydrosignatures.svg
     :target: https://pypi.python.org/pypi/hydrosignatures
@@ -103,100 +109,34 @@ PyNHD: Navigate and subset NHDPlus database
 Features
 --------
 
-PyNHD is a part of `HyRiver <https://github.com/hyriver/HyRiver>`__ software stack that
-is designed to aid in hydroclimate analysis through web services.
+HydroSignatures is a part of `HyRiver <https://github.com/hyriver/HyRiver>`__ software
+stack that is a suite of tools for computing hydrological signatures.
+It includes the following functions:
 
-This package provides access to several hydro-linked datasets including
-`WaterData <https://labs.waterdata.usgs.gov/geoserver/web/wicket/bookmarkable/org.geoserver.web.demo.MapPreviewPage?1>`__,
-The National Map's `NHDPlus MR <https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer>`__,
-and `NHDPlus HR <https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer>`__,
-`NLDI <https://labs.waterdata.usgs.gov/about-nldi/>`__,
-`PyGeoAPI <https://labs.waterdata.usgs.gov/api/nldi/pygeoapi>`__,
-and `GeoConnex <https://geoconnex.internetofwater.dev/>`__.
+- ``compute_exceedance``: Exceedance probability that can be used plotting flow
+  duration curves;
+- ``compute_mean_monthly``: Mean monthly summary of a time series that can be used
+  for plotting regime curves;
+- ``compute_rolling_mean_monthly``: Rolling mean monthly summary of a time series
+  that can be used for plotting smoothed regime curves;
+- ``compute_baseflow``: Extracting baseflow from a streamflow time series using
+    the Lyne and Hollick digital filter (Ladson et al., 2013);
+- ``compute_bfi``: Baseflow index;
+- ``compute_si_walsh``: Seasonality index (Walsh and Lawler, 1981);
+- ``compute_si_markham``: Seasonality index (Markham, 1970);
+- ``extract_exterema``: Determining the location of local maxima and minima in a
+  time series;
 
-These web services can be used to navigate and extract vector data from NHDPlus V2 (both mid-
-and high-resolution) database such as catchments, HUC8, HUC12, GagesII, flowlines, and water
-bodies. Moreover, PyNHD gives access to an item on `ScienceBase <https://sciencebase.usgs.gov>`__
-called Select Attributes for NHDPlus Version 2.1 Reach Catchments and Modified Network Routed
-Upstream Watersheds for the Conterminous United States that is located
-`here <https://www.sciencebase.gov/catalog/item/5669a79ee4b08895842a1d47>`_.
-This item provides over 30 attributes at catchment-scale based on NHDPlus ComIDs.
-These attributes are available in three categories:
+Moreover, the package has a class called ``HydroSignatures`` that can be used to compute
+all these signatures by passing a streamflow and a precipitation time series, both
+in millimeters per day (or any other unit of time). This class support subtraction
+and inequality operators, which can be used to compare two HydroSignatures objects.
+You can serialize the object to a JSON file using the ``to_json`` method or convert it
+to a dictionary using the ``to_dict`` method.
 
-1. Local (`local`): For individual reach catchments,
-2. Total (`upstream_acc`): For network-accumulated values using total cumulative drainage area,
-3. Divergence (`div_routing`): For network-accumulated values using divergence-routed.
+All the functions are performant and efficient since have been implemented using ``numba``.
 
-A list of these attributes for each characteristic type can be accessed using ``nhdplus_attrs``
-function.
-
-Moreover, the PyGeoAPI service provides four functionalities:
-
-1. ``flow_trace``: Trace flow from a starting point to up/downstream direction.
-2. ``split_catchment``: Split the local catchment of a point of interest at the point's location.
-3. ``elevation_profile``: Extract elevation profile along a flow path between two points.
-4. ``cross_section``: Extract cross-section at a point of interest along a flow line.
-
-Similarly, PyNHD provides access to ComID-linked NHDPlus Value Added Attributes on
-`Hydroshare <https://www.hydroshare.org/resource/6092c8a62fac45be97a09bfd0b0bf726/>`__.
-This dataset includes slope and roughness, among other attributes, for all the flowlines.
-You can use ``nhdplus_vaa`` function to get this dataset.
-
-Additionally, PyNHD offers some extra utilities for processing the flowlines:
-
-- ``flowline_xsection`` and ``network_xsection``: Get cross-section lines along a flowline
-  at a given spacing or a network of flowlines at a given spacing.
-- ``flowline_resample`` and ``network_resample``:
-  Resampe a flowline or network of flowlines based on a given spacing. This is
-  useful for smoothing jagged flowlines similar to those in the NHDPlus database.
-- ``prepare_nhdplus``: For cleaning up the data frame by, for example, removing tiny networks,
-  adding a ``to_comid`` column, and finding terminal flowlines if it doesn't exist.
-- ``topoogical_sort``: For sorting the river network topologically which is useful for routing
-  and flow accumulation.
-- ``vector_accumulation``: For computing flow accumulation in a river network. This function
-  is generic, and any routing method can be plugged in.
-
-These utilities are developed based on an R package called
-`nhdplusTools <https://github.com/USGS-R/nhdplusTools>`__ and a Python package
-called `nldi-xstool <https://code.usgs.gov/wma/nhgf/toolsteam/nldi-xstool>`__.
-
-All functions and classes that request data from web services use ``async-retriever``
-that offers response caching. By default, the expiration time is set to never expire.
-All these functions and classes have two optional parameters for controlling the cache:
-``expire_after`` and ``disable_caching``. You can use ``expire_after`` to set the expiration
-time in seconds. If ``expire_after`` is set to ``-1``, the cache will never expire (default).
-You can use ``disable_caching`` if you don't want to use the cached responses. The cached
-responses are stored in the ``./cache/aiohttp_cache.sqlite`` file.
-
-You can find some example notebooks `here <https://github.com/hyriver/HyRiver-examples>`__.
-
-Moreover, under the hood, PyNHD uses
-`AsyncRetriever <https://github.com/hyriver/async-retriever>`__
-for making requests asynchronously with persistent caching. This improves the
-reliability and speed of data retrieval significantly. AsyncRetriever caches all request/response
-pairs and upon making an already cached request, it will retrieve the responses from the cache
-if the server's response is unchanged.
-
-You can control the request/response caching behavior by setting the following
-environment variables:
-
-* ``HYRIVER_CACHE_NAME``: Path to the caching SQLite database. It defaults to
-  ``./cache/aiohttp_cache.sqlite``
-* ``HYRIVER_CACHE_EXPIRE``: Expiration time for cached requests in seconds. It defaults to
-  -1 (never expire).
-* ``HYRIVER_CACHE_DISABLE``: Disable reading/writing from/to the cache. The default is false.
-
-For example, in your code before making any requests you can do:
-
-.. code-block:: python
-
-    import os
-
-    os.environ["HYRIVER_CACHE_NAME"] = "path/to/file.sqlite"
-    os.environ["HYRIVER_CACHE_EXPIRE"] = "3600"
-    os.environ["HYRIVER_CACHE_DISABLE"] = "true"
-
-You can also try using PyNHD without installing
+You can also try using HydroSignatures without installing
 it on your system by clicking on the binder badge. A Jupyter Lab
 instance with the HyRiver stack pre-installed will be launched in your web browser, and you
 can start coding!
@@ -225,15 +165,13 @@ If you use any of HyRiver packages in your research, we appreciate citations:
 Installation
 ------------
 
-You can install PyNHD using ``pip`` after installing ``libgdal`` on your system
-(for example, in Ubuntu run ``sudo apt install libgdal-dev``):
+You can install HydroSignatures using ``pip``:
 
 .. code-block:: console
 
     $ pip install hydrosignatures
 
-Alternatively, PyNHD can be installed from the ``conda-forge`` repository
-using `Conda <https://docs.conda.io/en/latest/>`__
+or from the ``conda-forge`` repository using `Conda <https://docs.conda.io/en/latest/>`__
 or `Mamba <https://github.com/conda-forge/miniforge>`__:
 
 .. code-block:: console
@@ -243,323 +181,106 @@ or `Mamba <https://github.com/conda-forge/miniforge>`__:
 Quick start
 -----------
 
-Let's explore the capabilities of ``NLDI``. We need to instantiate the class first:
+Let's explore the capabilities of ``HydroSignatures`` by getting streamflow
+using PyGeoHydro, basin geometry using PyNHD and precipitation using PyDaymet.
+In this example, we select West Branch Herring Run At Idlewylde, MD, as the
+watershed of interest and compute the hydrological signatures for the period
+from 2010 to 2020.
 
 .. code:: python
 
-    from hydrosignatures import NLDI, WaterData, NHDPlusHR
-    import hydrosignatures as nhd
+    import pydaymet as daymet
+    import hydrosignatures as hs
+    import pygeohydro as gh
+    from hydrosignatures import HydroSignatures
+    from pygeohydro import NWIS
+    from pynhd import WaterData
 
-First, let's get the watershed geometry of the contributing basin of a
-USGS station using ``NLDI``:
+    site = "01585200"
+    start = "2010-01-01"
+    end = "2020-12-31"
 
-.. code:: python
-
-    nldi = NLDI()
-    station_id = "01031500"
-
-    basin = nldi.get_basins(station_id)
-
-The ``navigate_byid`` class method can be used to navigate NHDPlus in
-both upstream and downstream of any point in the database. Let's get the ComIDs and flowlines
-of the tributaries and the main river channel upstream of the station.
+First, we get the basin geometry of the watershed using ``gagesii_basins`` layer of
+the USGS's WaterData web service.
 
 .. code:: python
 
-    flw_main = nldi.navigate_byid(
-        fsource="nwissite",
-        fid=f"USGS-{station_id}",
-        navigation="upstreamMain",
-        source="flowlines",
-        distance=1000,
-    )
+    wd = WaterData("gagesii_basins")
+    geometry = wd.byid("gage_id", site).geometry[0]
 
-    flw_trib = nldi.navigate_byid(
-        fsource="nwissite",
-        fid=f"USGS-{station_id}",
-        navigation="upstreamTributaries",
-        source="flowlines",
-        distance=1000,
-    )
-
-We can get other USGS stations upstream (or downstream) of the station
-and even set a distance limit (in km):
+Then, we obtain the station's info and streamflow data using NWIS. Note that
+we should convert the streamflow from cms to mm/day.
 
 .. code:: python
 
-    st_all = nldi.navigate_byid(
-        fsource="nwissite",
-        fid=f"USGS-{station_id}",
-        navigation="upstreamTributaries",
-        source="nwissite",
-        distance=1000,
-    )
+    nwis = NWIS()
+    info = nwis.get_info({"site": site})
+    area_sqm = info.drain_sqkm.values[0] * 1e6
+    q_cms = nwis.get_streamflow(site, (start, end))
+    q_mmpd = q_cms * (24.0 * 60.0 * 60.0) / area_sqm * 1e3
+    q_mmpd.index = pd.to_datetime(q_mmpd.index.date)
 
-    st_d20 = nldi.navigate_byid(
-        fsource="nwissite",
-        fid=f"USGS-{station_id}",
-        navigation="upstreamTributaries",
-        source="nwissite",
-        distance=20,
-    )
-
-We can get more information about these stations using GeoConnex:
+Next, we retrieve the precipitation data using PyDaymet over the whole basin
+using the basin geometry and take its mean as the basin's precipitation.
 
 .. code:: python
 
-    gcx = GeoConnex("gages")
-    stations = st_all.identifier.str.split("-").str[1].unique()
-    gages = gpd.GeoDataFrame(
-        pd.concat(gcx.query({"provider_id": sid}) for sid in stations),
-        crs="epsg:4326",
-    )
+    prcp = daymet.get_bygeom(geometry, (start, end), variables="prcp")
+    p_mmpd = prcp.prcp.mean(dim=["x", "y"]).to_pandas()
+    p_mmpd.index = pd.to_datetime(p_mmpd.index.date)
+    q_mmpd = q_mmpd.loc[p_mmpd.index]
 
-Instead, we can carry out a spatial query within the basin of interest:
+Now, we can pass these two to the ``HydroSignatures`` class:
 
 .. code:: python
 
-    gages = hydrosignatures.geoconnex(
-        item="gages",
-        query={"geometry": basin.geometry.iloc[0]},
-    )
+    sig = HydroSignatures(q_mmpd, p_mmpd)
 
-Now, let's get the
-`HUC12 pour points <https://www.sciencebase.gov/catalog/item/5762b664e4b07657d19a71ea>`__:
+The ``sig.values`` property of this class contains the computed signatures. For example,
+let's plot the regime curves:
 
 .. code:: python
 
-    pp = nldi.navigate_byid(
-        fsource="nwissite",
-        fid=f"USGS-{station_id}",
-        navigation="upstreamTributaries",
-        source="huc12pp",
-        distance=1000,
-    )
+    sig.values.mean_monthly.plot()
 
-.. image:: https://raw.githubusercontent.com/hyriver/HyRiver-examples/main/notebooks/_static/nhdplus_navigation.png
-    :target: https://github.com/hyriver/HyRiver-examples/blob/main/notebooks/nhdplus.ipynb
+
+.. image:: https://raw.githubusercontent.com/hyriver/HyRiver-examples/main/notebooks/_static/signatures_rc.png
+    :target: https://docs.hyriver.io/examples/notebooks/signatures.ipynb
     :align: center
 
-Also, we can get the slope data for each river segment from the NHDPlus VAA database:
+Note that, you can also use the functions directly. For example, let's get
+streamflow observations for another station and separate the baseflow using
+various filter parameters and compare them:
 
 .. code:: python
 
-    vaa = nhd.nhdplus_vaa("input_data/nhdplus_vaa.parquet")
+    import numpy as np
+    import pandas as pd
 
-    flw_trib["comid"] = pd.to_numeric(flw_trib.nhdplus_comid)
-    slope = gpd.GeoDataFrame(
-        pd.merge(flw_trib, vaa[["comid", "slope"]], left_on="comid", right_on="comid"),
-        crs=flw_trib.crs,
-    )
-    slope[slope.slope < 0] = np.nan
+    q = nwis.get_streamflow("12304500", ("2019-01-01", "2019-12-31"))
+    alpha = np.arange(0.9, 1, 0.01)
+    qb = pd.DataFrame({a: hs.compute_baseflow(q.squeeze(), alpha=a) for a in alpha})
 
-Additionally, we can obtain cross-section lines along the main river channel with 4 km spacing
-and width of 2 km using ``network_xsection`` as follows:
 
-.. code:: python
-
-    from hydrosignatures import NHD
-
-    distance = 4000  # in meters
-    width = 2000  # in meters
-    nhd = NHD("flowline_mr")
-    main_nhd = nhd.byids("COMID", flw_main.index)
-    main_nhd = hydrosignatures.prepare_nhdplus(main_nhd, 0, 0, 0, purge_non_dendritic=True)
-    main_nhd = main_nhd.to_crs("ESRI:102003")
-    cs = hydrosignatures.network_xsection(main_nhd, distance, width)
-
-Then, we can use `Py3DEP <https://github.com/hyriver/py3dep>`__
-to obtain the elevation profile along the cross-section lines.
-
-Now, let's explore the PyGeoAPI capabilities. There are two ways that you can access
-PyGeoAPI: ``PyGeoAPI`` class and ``pygeoapi`` function. The ``PyGeoAPI`` class
-is for querying the database for a single location using tuples and list while the
-``pygeoapi`` function is for querying the database for multiple locations at once
-and accepts a ``geopandas.GeoDataFrame`` as input. The ``pygeoapi`` function
-is more efficient than the ``PyGeoAPI`` class and has a simpler interface. In future
-versions, the ``PyGeoAPI`` class will be deprecated and the ``pygeoapi`` function
-will be the only way to access the database. Let's compare the two, starting by
-``PyGeoAPI``:
-
-.. code:: python
-
-    pygeoapi = PyGeoAPI()
-
-    trace = pygeoapi.flow_trace((1774209.63, 856381.68), crs="ESRI:102003", direction="none")
-
-    split = pygeoapi.split_catchment((-73.82705, 43.29139), crs="epsg:4326", upstream=False)
-
-    profile = pygeoapi.elevation_profile(
-        [(-103.801086, 40.26772), (-103.80097, 40.270568)],
-        numpts=101,
-        dem_res=1,
-        crs="epsg:4326",
-    )
-
-    section = pygeoapi.cross_section((-103.80119, 40.2684), width=1000.0, numpts=101, crs="epsg:4326")
-
-Now, let's do the same operations using ``pygeoapi``:
-
-.. code:: python
-
-    import geopandas as gpd
-    import shapely.geometry as sgeom
-    import hydrosignatures as nhd
-
-    coords = gpd.GeoDataFrame(
-        {
-            "direction": ["up", "down"],
-            "upstream": [True, False],
-            "width": [1000.0, 500.0],
-            "numpts": [101, 55],
-        },
-        geometry=[
-            sgeom.Point(-73.82705, 43.29139),
-            sgeom.Point(-103.801086, 40.26772),
-        ],
-        crs="epsg:4326",
-    )
-    trace = nhd.pygeoapi(coords, "flow_trace")
-    split = nhd.pygeoapi(coords, "split_catchment")
-    section = nhd.pygeoapi(coords, "cross_section")
-
-    coords = gpd.GeoDataFrame(
-        {
-            "direction": ["up", "down"],
-            "upstream": [True, False],
-            "width": [1000.0, 500.0],
-            "numpts": [101, 55],
-            "dem_res": [1, 10],
-        },
-        geometry=[
-            sgeom.MultiPoint([(-103.801086, 40.26772), (-103.80097, 40.270568)]),
-            sgeom.MultiPoint([(-102.801086, 39.26772), (-102.80097, 39.270568)]),
-        ],
-        crs="epsg:4326",
-    )
-    profile = nhd.pygeoapi(coords, "elevation_profile")
-
-.. image:: https://raw.githubusercontent.com/hyriver/HyRiver-examples/main/notebooks/_static/split_catchment.png
-    :target: https://github.com/hyriver/HyRiver-examples/blob/main/notebooks/pygeoapi.ipynb
+.. image:: https://raw.githubusercontent.com/hyriver/HyRiver-examples/main/notebooks/_static/signatures_bf.png
+    :target: https://docs.hyriver.io/examples/notebooks/signatures.ipynb
     :align: center
 
-Next, we retrieve mid- and high-resolution flowlines within the bounding box of our
-watershed and compare them using ``WaterData`` for mid-resolution, ``NHDPlusHR`` for
-high-resolution.
+
+As we said before, these functions are performant and can handle large datasets.
+For example, let's compute baseflow index for all streamflow time series of
+the stations in the CAMELS dataset. We retrieve the CAMELS dataset using PyGeoHydro:
 
 .. code:: python
 
-    mr = WaterData("nhdflowline_network")
-    nhdp_mr = mr.bybox(basin.geometry[0].bounds)
+    import xarray as xr
 
-    hr = NHDPlusHR("flowline")
-    nhdp_hr = hr.bygeom(basin.geometry[0].bounds)
+    camels_basin, camels_qobs = gh.get_camels()
+    discharge = camels_qobs.discharge.dropna("station_id")
+    discharge = xr.where(discharge < 0, 0, discharge)
+    bf = hs.compute_baseflow(discharge)
 
-.. image:: https://raw.githubusercontent.com/hyriver/HyRiver-examples/main/notebooks/_static/hr_mr.png
-    :target: https://github.com/hyriver/HyRiver-examples/blob/main/notebooks/nhdplus.ipynb
-    :align: center
-
-An alternative to ``WaterData`` and ``NHDPlusHR`` is the ``NHD`` class that
-supports both the mid- and high-resolution NHDPlus V2 data:
-
-.. code:: python
-
-    mr = NHD("flowline_mr")
-    nhdp_mr = mr.bygeom(basin.geometry[0].bounds)
-
-    hr = NHD("flowline_hr")
-    nhdp_hr = hr.bygeom(basin.geometry[0].bounds)
-
-Moreover, ``WaterData`` can find features within a given radius (in meters) of a point:
-
-.. code:: python
-
-    eck4 = "+proj=eck4 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
-    coords = (-5727797.427596455, 5584066.49330473)
-    rad = 5e3
-    flw_rad = mr.bydistance(coords, rad, loc_crs=eck4)
-    flw_rad = flw_rad.to_crs(eck4)
-
-Instead of getting all features within a radius of the coordinate, we can snap to the closest
-feature ID using NLDI:
-
-.. code:: python
-
-    comid_closest = nldi.comid_byloc((x, y), eck4)
-    flw_closest = nhdp_mr.byid("comid", comid_closest.comid.values[0])
-
-.. image:: https://raw.githubusercontent.com/hyriver/HyRiver-examples/main/notebooks/_static/nhdplus_radius.png
-    :target: https://github.com/hyriver/HyRiver-examples/blob/main/notebooks/nhdplus.ipynb
-    :align: center
-
-Since NHDPlus HR is still at the pre-release stage let's use the MR flowlines to
-demonstrate the vector-based accumulation. Based on a topological sorted river network
-``hydrosignatures.vector_accumulation`` computes flow accumulation in the network.
-It returns a data frame that is sorted from upstream to downstream that
-shows the accumulated flow in each node.
-
-PyNHD has a utility called ``prepare_nhdplus`` that identifies such
-relationships among other things such as fixing some common issues with
-NHDPlus flowlines. But first, we need to get all the NHDPlus attributes
-for each ComID since ``NLDI`` only provides the flowlines' geometries
-and ComIDs which is useful for navigating the vector river network data.
-For getting the NHDPlus database we use ``WaterData``. Let's use the
-``nhdflowline_network`` layer to get required info.
-
-.. code:: python
-
-    wd = WaterData("nhdflowline_network")
-
-    comids = flw_trib.nhdplus_comid.to_list()
-    nhdp_trib = wd.byid("comid", comids)
-    flw = nhd.prepare_nhdplus(nhdp_trib, 0, 0, purge_non_dendritic=False)
-
-To demonstrate the use of routing, let's use ``nhdplus_attrs`` function to get a list of available
-NHDPlus attributes
-
-.. code:: python
-
-    char = "CAT_RECHG"
-    area = "areasqkm"
-
-    local = nldi.getcharacteristic_byid(comids, "local", char_ids=char)
-    flw = flw.merge(local[char], left_on="comid", right_index=True)
-
-
-    def runoff_acc(qin, q, a):
-        return qin + q * a
-
-
-    flw_r = flw[["comid", "tocomid", char, area]]
-    runoff = nhd.vector_accumulation(flw_r, runoff_acc, char, [char, area])
-
-
-    def area_acc(ain, a):
-        return ain + a
-
-
-    flw_a = flw[["comid", "tocomid", area]]
-    areasqkm = nhd.vector_accumulation(flw_a, area_acc, area, [area])
-
-    runoff /= areasqkm
-
-Since these are catchment-scale characteristics, let's get the catchments
-then add the accumulated characteristic as a new column and plot the
-results.
-
-.. code:: python
-
-    wd = WaterData("catchmentsp")
-    catchments = wd.byid("featureid", comids)
-
-    c_local = catchments.merge(local, left_on="featureid", right_index=True)
-    c_acc = catchments.merge(runoff, left_on="featureid", right_index=True)
-
-.. image:: https://raw.githubusercontent.com/hyriver/HyRiver-examples/main/notebooks/_static/flow_accumulation.png
-    :target: https://github.com/hyriver/HyRiver-examples/blob/main/notebooks/nhdplus.ipynb
-    :align: center
-
-More examples can be found `here <https://pygeohydro.readthedocs.io/en/latest/examples.html>`__.
+More examples can be found `here <https://docs.hyriver.io/examples.html>`__.
 
 Contributing
 ------------
