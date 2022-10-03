@@ -158,6 +158,23 @@ def __batch_backward(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np
     return qb
 
 
+def __to_numpy(arr: ARRAY) -> npt.NDArray[np.float64]:
+    """Convert array to numpy array."""
+    if isinstance(arr, (pd.Series, pd.DataFrame)):
+        q = arr.to_numpy("f8")
+    elif HAS_XARRAY and isinstance(arr, xr.DataArray):
+        q = arr.astype("f8").to_numpy()
+    else:
+        q = arr.astype("f8")
+
+    if np.isnan(q).any():
+        raise InputTypeError("discharge", "array/dataframe without NaN values")
+
+    if q.ndim == 1:
+        q = np.expand_dims(q, axis=0)
+    return q
+
+
 def compute_baseflow(
     discharge: ARRAY, alpha: float = 0.925, n_passes: int = 3, pad_width: int = 10
 ) -> ARRAY:
@@ -189,22 +206,10 @@ def compute_baseflow(
     if not (0 < alpha < 1):
         raise InputRangeError("alpha", "between zero and one")
 
-    if isinstance(discharge, (pd.Series, pd.DataFrame)):
-        q = discharge.to_numpy("f8")
-    elif HAS_XARRAY and isinstance(discharge, xr.DataArray):
-        q = discharge.astype("f8").to_numpy()
-    else:
-        q = discharge.astype("f8")
-
-    if np.isnan(q).any():
-        raise InputTypeError("discharge", "array/dataframe without NaN values")
-
     if pad_width < 1:
         raise InputRangeError("pad_width", "greater than or equal to 1")
 
-    if q.ndim == 1:
-        q = np.expand_dims(q, axis=0)
-
+    q = __to_numpy(discharge)
     q = np.apply_along_axis(np.pad, 1, q, pad_width, "edge")
     qb = __batch_forward(q, alpha)
     passes = int(round(0.5 * (n_passes - 1)))
