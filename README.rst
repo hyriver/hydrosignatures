@@ -268,18 +268,17 @@ various filter parameters and compare them:
     :align: center
 
 
-As we said before, these functions are performant and can handle large datasets.
-For example, let's compute baseflow index for all streamflow time series of
+Lastly, let's compute Markham's seasonality index for all streamflow time series of
 the stations in the CAMELS dataset. We retrieve the CAMELS dataset using PyGeoHydro:
 
 .. code:: python
 
     import xarray as xr
 
-    camels_basin, camels_qobs = gh.get_camels()
+    _, camels_qobs = gh.get_camels()
     discharge = camels_qobs.discharge.dropna("station_id")
     discharge = xr.where(discharge < 0, 0, discharge)
-    bf = hs.compute_baseflow(discharge)
+    si = hs.compute_si_markham(discharge.to_pandas())
 
 More examples can be found `here <https://docs.hyriver.io/examples.html>`__.
 
