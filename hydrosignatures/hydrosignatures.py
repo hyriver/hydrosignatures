@@ -393,6 +393,12 @@ class SignaturesFloat(NamedTuple):
     seasonality_index: np.float64
     mean_annual_flood: np.float64
 
+    def to_dict(self) -> Dict[str, Union[np.float64, Dict[str, Dict[str, np.float64]]]]:
+        """Return a dictionary with the hydrologic signatures."""
+        sigd = self._asdict()
+        sigd["mean_monthly"] = self.mean_monthly.to_dict()
+        return sigd
+
 
 @dataclass
 class HydroSignatures:
