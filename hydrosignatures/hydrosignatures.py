@@ -374,7 +374,7 @@ class SignaturesFloat(NamedTuple):
         Annual Runoff Ratio
     fdc_slope : float
         Flow Duration Curve Slope
-    mean_monthly : float
+    mean_monthly : pandas.DataFrame
         Mean Monthly Flow
     streamflow_elasticity : float
         Streamflow Elasticity
