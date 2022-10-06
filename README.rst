@@ -129,13 +129,13 @@ This package includes the following functions:
 
 Moreover, the package has a class called ``HydroSignatures`` that can be used to compute
 all these signatures by passing a streamflow and a precipitation time series, both
-in millimeters per day (or any other unit of time). This class support subtraction
-and inequality operators, which can be used to compare two HydroSignatures objects.
-You can serialize the object to a JSON file using the ``to_json`` method or convert it
+in millimeters per day (or any other unit of time). This class supports subtraction
+and inequality operators, which can be used to compare two ``HydroSignatures`` objects.
+You can serialize the class to a JSON object using the ``to_json`` method or convert it
 to a dictionary using the ``to_dict`` method.
 
 Moreover, ``numba`` is an optional dependency for the ``compute_baseflow`` function.
-Installing ``numba`` will speed up the computation of the baseflow significantly.
+Installing ``numba`` will speed up the computation of baseflow significantly.
 
 You can also try using HydroSignatures without installing
 it on your system by clicking on the binder badge. A Jupyter Lab
