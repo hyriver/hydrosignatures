@@ -21,9 +21,11 @@ except ImportError:
     HAS_XARRAY = False
 
 try:
+    from numba import config as numba_config
     from numba import njit, prange
 
     ngjit = functools.partial(njit, cache=True, nogil=True)
+    numba_config.THREADING_LAYER = "workqueue"
     HAS_NUMBA = True
 except ImportError:
     HAS_NUMBA = False
