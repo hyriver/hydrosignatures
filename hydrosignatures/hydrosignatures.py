@@ -56,6 +56,7 @@ __all__ = [
     "compute_rolling_mean_monthly",
     "compute_baseflow",
     "compute_bfi",
+    "compute_ai",
     "compute_si_walsh",
     "compute_si_markham",
     "extract_exterema",
@@ -256,6 +257,32 @@ def compute_bfi(
         return np.float64(0.0)
     qb = compute_baseflow(discharge, alpha, n_passes, pad_width)
     return qb.sum() / qsum
+
+
+def compute_ai(pet: ARRAY, prcp: ARRAY) -> Union[np.float64, npt.NDArray[np.float64]]:
+    """Compute the aridity index.
+
+    Parameters
+    ----------
+    pet : numpy.ndarray or pandas.DataFrame or pandas.Series or xarray.DataArray
+        Potential evapotranspiration time series that must not have any missing
+        values. It can also be a 2D array where each row is a time series.
+    prcp : numpy.ndarray or pandas.DataFrame or pandas.Series or xarray.DataArray
+        Precipitation time series that must not have any missing
+        values. It can also be a 2D array where each row is a time series.
+
+    Returns
+    -------
+    numpy.float64 or numpy.ndarray
+        The aridity index.
+    """
+    psum = __to_numpy(prcp).sum(axis=1)
+    if psum < EPS:
+        return np.float64(0.0)
+    ai = __to_numpy(pet).sum(axis=1) / psum
+    if ai.size == 1:
+        return np.float64(ai[0])
+    return ai.squeeze()
 
 
 def compute_si_walsh(data: Union[pd.Series, pd.DataFrame]) -> pd.Series:

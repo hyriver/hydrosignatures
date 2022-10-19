@@ -4,6 +4,7 @@ from importlib.metadata import PackageNotFoundError, version
 from .exceptions import InputRangeError, InputTypeError, InputValueError
 from .hydrosignatures import (
     HydroSignatures,
+    compute_ai,
     compute_baseflow,
     compute_bfi,
     compute_exceedance,
@@ -30,6 +31,7 @@ __all__ = [
     "compute_rolling_mean_monthly",
     "compute_baseflow",
     "compute_bfi",
+    "compute_ai",
     "compute_si_walsh",
     "compute_si_markham",
     "extract_exterema",
