@@ -122,6 +122,7 @@ This package includes the following functions:
 - ``compute_baseflow``: Extracting baseflow from a streamflow time series using the
   Lyne and Hollick digital filter (Ladson et al., 2013);
 - ``compute_bfi``: Baseflow index;
+- ``compute_ai``: Aridity index;
 - ``compute_si_walsh``: Seasonality index (Walsh and Lawler, 1981);
 - ``compute_si_markham``: Seasonality index (Markham, 1970);
 - ``extract_exterema``: Determining the location of local maxima and minima in a
