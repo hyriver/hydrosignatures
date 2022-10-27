@@ -8,11 +8,13 @@ from .hydrosignatures import (
     compute_baseflow,
     compute_bfi,
     compute_exceedance,
+    compute_fdc_slope,
+    compute_flood_moments,
     compute_mean_monthly,
     compute_rolling_mean_monthly,
     compute_si_markham,
     compute_si_walsh,
-    extract_exterema,
+    extract_extrema,
 )
 from .print_versions import show_versions
 
@@ -26,7 +28,9 @@ __all__ = [
     "InputValueError",
     "InputTypeError",
     "HydroSignatures",
+    "compute_flood_moments",
     "compute_exceedance",
+    "compute_fdc_slope",
     "compute_mean_monthly",
     "compute_rolling_mean_monthly",
     "compute_baseflow",
@@ -34,6 +38,6 @@ __all__ = [
     "compute_ai",
     "compute_si_walsh",
     "compute_si_markham",
-    "extract_exterema",
+    "extract_extrema",
     "show_versions",
 ]
