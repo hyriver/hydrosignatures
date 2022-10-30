@@ -3,6 +3,8 @@
 The original script is from
 `xarray <https://github.com/pydata/xarray/blob/master/xarray/util/print_versions.py>`__
 """
+from __future__ import annotations
+
 import importlib
 import locale
 import os
@@ -10,13 +12,15 @@ import platform
 import struct
 import subprocess
 import sys
-from types import ModuleType
-from typing import List, Optional, TextIO, Tuple
+from typing import TYPE_CHECKING, TextIO
+
+if TYPE_CHECKING:
+    from types import ModuleType
 
 __all__ = ["show_versions"]
 
 
-def netcdf_and_hdf5_versions() -> List[Tuple[str, Optional[str]]]:
+def netcdf_and_hdf5_versions() -> list[tuple[str, str | None]]:
     libhdf5_version = None
     libnetcdf_version = None
     try:
@@ -34,7 +38,7 @@ def netcdf_and_hdf5_versions() -> List[Tuple[str, Optional[str]]]:
     return [("libhdf5", libhdf5_version), ("libnetcdf", libnetcdf_version)]
 
 
-def get_sys_info() -> List[Tuple[str, Optional[str]]]:
+def get_sys_info() -> list[tuple[str, str | None]]:
     """Return system information as a dict.
 
     From https://github.com/numpy/numpy/blob/master/setup.py#L64-L89
@@ -46,7 +50,7 @@ def get_sys_info() -> List[Tuple[str, Optional[str]]]:
     """
     blob = []
 
-    def _minimal_ext_cmd(cmd: List[str]) -> bytes:
+    def _minimal_ext_cmd(cmd: list[str]) -> bytes:
         # construct minimal environment
         env = {}
         for k in ["SYSTEMROOT", "PATH", "HOME"]:
@@ -107,19 +111,66 @@ def show_versions(file: TextIO = sys.stdout) -> None:
         print to the given file-like object. Defaults to sys.stdout.
     """
     deps = [
-        # deps
-        ("numba", lambda mod: mod.__version__),
+        #  async_retriever
+        ("async-retriever", lambda mod: mod.__version__),
+        ("aiodns", lambda mod: mod.__version__),
+        ("aiohttp", lambda mod: mod.__version__),
+        ("aiohttp-client-cache", lambda mod: mod.__version__),
+        ("aiosqlite", lambda mod: mod.__version__),
+        ("brotli", lambda mod: mod.__version__),
+        ("cchardet", lambda mod: mod.__version__),
+        ("cytoolz", lambda mod: mod.__version__),
+        ("ujson", lambda mod: mod.__version__),
+        #  pygeoogc
+        ("pygeoogc", lambda mod: mod.__version__),
+        ("defusedxml", lambda mod: mod.__version__),
+        ("owslib", lambda mod: mod.__version__),
+        ("yaml", lambda mod: mod.__version__),
+        ("pyproj", lambda mod: mod.__version__),
+        ("requests", lambda mod: mod.__version__),
+        ("requests-cache", lambda mod: mod.__version__),
+        ("shapely", lambda mod: mod.__version__),
+        ("urllib3", lambda mod: mod.__version__),
+        #  pygeoutils
+        ("pygeoutils", lambda mod: mod.__version__),
+        ("dask", lambda mod: mod.__version__),
+        ("geopandas", lambda mod: mod.__version__),
+        ("netCDF4", lambda mod: mod.__version__),
         ("numpy", lambda mod: mod.__version__),
-        ("pandas", lambda mod: mod.__version__),
-        ("scipy", lambda mod: mod.__version__),
+        ("rasterio", lambda mod: mod.__version__),
         ("xarray", lambda mod: mod.__version__),
+        ("rioxarray", lambda mod: mod.__version__),
+        #  py3dep
+        ("py3dep", lambda mod: mod.__version__),
+        ("click", lambda mod: mod.__version__),
+        ("scipy", lambda mod: mod.__version__),
+        ("richdem", lambda mod: mod.pkg_resources.require("richdem")[0].version),
+        #  pynhd
+        ("pynhd", lambda mod: mod.__version__),
+        ("networkx", lambda mod: mod.__version__),
+        ("pandas", lambda mod: mod.__version__),
+        ("pyarrow", lambda mod: mod.__version__),
+        #  pygeohydro
+        ("pygeohydro", lambda mod: mod.__version__),
+        ("folium", lambda mod: mod.__version__),
+        ("lxml", lambda mod: mod.__version__),
+        ("matplotlib", lambda mod: mod.__version__),
+        #  pydaymet
+        ("pydaymet", lambda mod: mod.__version__),
+        #  hydrosignatures
+        ("hydrosignatures", lambda mod: mod.__version__),
+        #  misc
+        ("numba", lambda mod: mod.__version__),
+        ("bottleneck", lambda mod: mod.__version__),
+        ("pygeos", lambda mod: mod.__version__),
+        ("tables", lambda mod: mod.__version__),
         #  test
         ("pytest", lambda mod: mod.__version__),
         ("pytest-cov", lambda mod: mod.__version__),
         ("xdist", lambda mod: mod.__version__),
     ]
 
-    deps_blob: List[Tuple[str, Optional[str]]] = []
+    deps_blob: list[tuple[str, str | None]] = []
     for (modname, ver_f) in deps:
         try:
             mod = _get_mod(modname)
