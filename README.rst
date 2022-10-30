@@ -125,7 +125,7 @@ This package includes the following functions:
 - ``compute_ai``: Aridity index;
 - ``compute_si_walsh``: Seasonality index (Walsh and Lawler, 1981);
 - ``compute_si_markham``: Seasonality index (Markham, 1970);
-- ``extract_exterema``: Determining the location of local maxima and minima in a
+- ``extract_extrema``: Determining the location of local maxima and minima in a
   time series;
 
 Moreover, the package has a class called ``HydroSignatures`` that can be used to compute
