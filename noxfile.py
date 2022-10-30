@@ -15,6 +15,15 @@ def get_package_name():
 
 python_versions = ["3.10"]
 package = get_package_name()
+gh_deps = {
+    "async_retriever": [],
+    "pygeoogc": ["async_retriever"],
+    "pygeoutils": ["async_retriever", "pygeoogc"],
+    "pynhd": ["async_retriever", "pygeoogc", "pygeoutils"],
+    "py3dep": ["async_retriever", "pygeoogc", "pygeoutils"],
+    "pygeohydro": ["async_retriever", "pygeoogc", "pygeoutils", "pynhd", "hydrosignatures"],
+    "pydaymet": ["async_retriever", "pygeoogc", "pygeoutils", "py3dep"],
+}
 nox.options.sessions = (
     "pre-commit",
     "tests",
@@ -24,7 +33,7 @@ nox.options.sessions = (
 
 def install_deps(session, extra):
     """Install package dependencies."""
-    deps = [f".[{extra}]"]
+    deps = [f".[{extra}]"] + [f"git+https://github.com/cheginit/{p}.git" for p in gh_deps[package]]
     session.install(*deps)
     dirs = [".pytest_cache", "build", "dist", ".eggs"]
     for d in dirs:
@@ -100,7 +109,7 @@ def pre_commit(session) -> None:
 @nox.session(python=python_versions)
 def tests(session):
     """Run the test suite."""
-    install_deps(session, "test,full")
+    install_deps(session, "test")
 
     session.run("pytest", "--doctest-modules", *session.posargs)
     session.run("coverage", "report")
