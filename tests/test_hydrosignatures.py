@@ -11,7 +11,7 @@ import pytest
 import hydrosignatures as hs
 
 
-def assert_close(a: float, b: float) -> bool:
+def assert_close(a: float, b: float) -> None:
     assert np.isclose(a, b, rtol=1e-3).all()
 
 
@@ -26,7 +26,7 @@ def datasets() -> Tuple[pd.Series, pd.Series, Dict[str, Any]]:
 def test_signatures(datasets):
     q_mmpd, p_mmpd, sig_expected = datasets
     sig = hs.HydroSignatures(q_mmpd, p_mmpd)
-    sig_dict = sig.values._asdict()
+    sig_dict = sig.to_dict()
     mm = sig_expected.pop("mean_monthly")
     assert all(np.isclose(sig_dict[key], val, rtol=1.0e-3) for key, val in sig_expected.items())
     assert np.allclose(pd.DataFrame(mm), sig.values.mean_monthly)
