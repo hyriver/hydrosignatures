@@ -2,7 +2,7 @@
 History
 =======
 
-0.1.1 (unreleased)
+0.1.1 (2022-11-04)
 ------------------
 
 - Add a new function called ``compute_ai`` for computing the aridity index.
