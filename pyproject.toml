@@ -54,3 +54,21 @@ no_gitignore = false
 [tool.black]
 line-length = 100
 target-version = ['py38']
+
+[tool.pyright]
+include = ["hydrosignatures"]
+exclude = [
+    ".nox/",
+    "**/__pycache__",
+    "**/__init__.py",
+    "tests/",
+]
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownLambdaType = false
+reportUnknownParameterType = false
+reportUnnecessaryIsInstance = false
+reportUntypedFunctionDecorator = false

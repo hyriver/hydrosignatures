@@ -24,7 +24,7 @@ repos:
     rev: v2.1.2
     hooks:
       - id: pycln
-        name: Find and remove unused import statements
+        name: Find and remove unused import statements with pycln
         args: [--config=pyproject.toml]
 
   - repo: https://github.com/bwhmather/ssort
@@ -34,7 +34,7 @@ repos:
       name: Sort top level statements with ssort
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.2
+    rev: 5.11.4
     hooks:
     - id: isort
       name: Sort imports with isort
@@ -68,7 +68,7 @@ repos:
       name: Check directives in rst files
 
   - repo: https://github.com/PyCQA/doc8
-    rev: v1.0.0
+    rev: v1.1.1
     hooks:
     - id: doc8
       name: Check documentation formats with doc8
@@ -108,17 +108,6 @@ repos:
       - flake8-type-checking
       - flake8-simplify
       - pep8-naming
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.991
-    hooks:
-    - id: mypy
-      name: Static type checking with mypy
-      exclude: tests
-      files: hydrosignatures
-      additional_dependencies:
-      - types-all
-      - numpy
 
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.4
