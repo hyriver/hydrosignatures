@@ -6,22 +6,15 @@ import functools
 import json
 import warnings
 from dataclasses import dataclass
-from typing import NamedTuple, TypeVar
+from typing import TYPE_CHECKING, NamedTuple, TypeVar, Union, cast
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+import xarray as xr
 from scipy import signal
 
 from .exceptions import InputRangeError, InputTypeError, InputValueError
-
-try:
-    import xarray as xr
-
-    HAS_XARRAY = True
-except ImportError:
-    xr = None
-    HAS_XARRAY = False
 
 try:
     from numba import config as numba_config
@@ -29,9 +22,9 @@ try:
 
     ngjit = functools.partial(njit, cache=True, nogil=True)
     numba_config.THREADING_LAYER = "workqueue"
-    HAS_NUMBA = True
+    has_numba = True
 except ImportError:
-    HAS_NUMBA = False
+    has_numba = False
     prange = range
     numba_config = None
     njit = None
@@ -48,11 +41,12 @@ except ImportError:
 
 
 EPS = np.float64(1e-6)
-DF = TypeVar("DF", pd.DataFrame, pd.Series)
-if HAS_XARRAY:
-    ARRAY = TypeVar("ARRAY", pd.Series, pd.DataFrame, npt.NDArray[np.float64], xr.DataArray)
-else:
-    ARRAY = TypeVar("ARRAY", pd.Series, pd.DataFrame, npt.NDArray[np.float64])  # type: ignore
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
+    DF = TypeVar("DF", pd.DataFrame, pd.Series)
+    ArrayVar = TypeVar("ArrayVar", pd.Series, pd.DataFrame, npt.NDArray[np.float64], xr.DataArray)
+    ArrayLike: TypeAlias = Union[pd.Series, pd.DataFrame, npt.NDArray[np.float64], xr.DataArray]
 
 __all__ = [
     "HydroSignatures",
@@ -229,11 +223,11 @@ def __batch_backward(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np
     return qb
 
 
-def __to_numpy(arr: ARRAY) -> npt.NDArray[np.float64]:
+def __to_numpy(arr: ArrayLike) -> npt.NDArray[np.float64]:
     """Convert array to numpy array."""
     if isinstance(arr, (pd.Series, pd.DataFrame)):
-        q = arr.to_numpy("f8")
-    elif HAS_XARRAY and isinstance(arr, xr.DataArray):
+        q = arr.to_numpy("f8")  # type: ignore
+    elif isinstance(arr, xr.DataArray):
         q = arr.astype("f8").to_numpy()
     else:
         q = arr.astype("f8")
@@ -247,8 +241,8 @@ def __to_numpy(arr: ARRAY) -> npt.NDArray[np.float64]:
 
 
 def compute_baseflow(
-    discharge: ARRAY, alpha: float = 0.925, n_passes: int = 3, pad_width: int = 10
-) -> ARRAY:
+    discharge: ArrayVar, alpha: float = 0.925, n_passes: int = 3, pad_width: int = 10
+) -> ArrayVar:
     """Extract baseflow using the Lyne and Hollick filter (Ladson et al., 2013).
 
     Parameters
@@ -268,7 +262,7 @@ def compute_baseflow(
     numpy.ndarray or pandas.DataFrame or pandas.Series or xarray.DataArray
         Same discharge input array-like but values replaced with computed baseflow values.
     """
-    if not HAS_NUMBA:
+    if not has_numba:
         warnings.warn("Numba not installed. Using slow pure python version.", UserWarning)
 
     if n_passes < 3 or n_passes % 2 == 0:
@@ -282,6 +276,7 @@ def compute_baseflow(
 
     q = __to_numpy(discharge)
     q = np.apply_along_axis(np.pad, 1, q, pad_width, "edge")
+    q = cast("npt.NDArray[np.float64]", q)
     qb = __batch_forward(q, alpha)
     passes = int(round(0.5 * (n_passes - 1)))
     for _ in range(passes):
@@ -290,16 +285,16 @@ def compute_baseflow(
     qb[qb < 0] = 0.0
     qb = qb.squeeze()
     if isinstance(discharge, pd.Series):
-        return pd.Series(qb, index=discharge.index)
+        return pd.Series(qb, index=discharge.index)  # type: ignore
     if isinstance(discharge, pd.DataFrame):
-        return pd.DataFrame(qb, index=discharge.index, columns=discharge.columns)
-    if HAS_XARRAY and isinstance(discharge, xr.DataArray):
-        return discharge.copy(data=qb)
-    return qb
+        return pd.DataFrame(qb, index=discharge.index, columns=discharge.columns)  # type: ignore
+    if isinstance(discharge, xr.DataArray):
+        return discharge.copy(data=qb)  # type: ignore
+    return qb  # type: ignore
 
 
 def compute_bfi(
-    discharge: ARRAY, alpha: float = 0.925, n_passes: int = 3, pad_width: int = 10
+    discharge: ArrayLike, alpha: float = 0.925, n_passes: int = 3, pad_width: int = 10
 ) -> np.float64:
     """Compute the baseflow index using the Lyne and Hollick filter (Ladson et al., 2013).
 
@@ -327,7 +322,7 @@ def compute_bfi(
     return qb.sum() / qsum
 
 
-def compute_ai(pet: ARRAY, prcp: ARRAY) -> np.float64 | npt.NDArray[np.float64]:
+def compute_ai(pet: ArrayLike, prcp: ArrayLike) -> np.float64 | npt.NDArray[np.float64]:
     """Compute the aridity index.
 
     Parameters

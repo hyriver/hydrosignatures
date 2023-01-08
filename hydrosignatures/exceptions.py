@@ -1,5 +1,7 @@
 """Customized PyNHD exceptions."""
-from typing import Generator, List, Optional, Union
+from __future__ import annotations
+
+from typing import Generator
 
 
 class InputValueError(Exception):
@@ -13,9 +15,7 @@ class InputValueError(Exception):
         List of valid inputs
     """
 
-    def __init__(
-        self, inp: str, valid_inputs: Union[List[str], Generator[str, None, None]]
-    ) -> None:
+    def __init__(self, inp: str, valid_inputs: list[str] | Generator[str, None, None]) -> None:
         self.message = f"Given {inp} is invalid. Valid {inp}s are:\n" + ", ".join(
             str(i) for i in valid_inputs
         )
@@ -38,7 +38,7 @@ class InputTypeError(TypeError):
         An example of a valid form of the argument, defaults to None.
     """
 
-    def __init__(self, arg: str, valid_type: str, example: Optional[str] = None) -> None:
+    def __init__(self, arg: str, valid_type: str, example: str | None = None) -> None:
         self.message = f"The {arg} argument should be of type {valid_type}"
         if example is not None:
             self.message += f":\n{example}"
