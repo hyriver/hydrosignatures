@@ -5,6 +5,11 @@ History
 0.1.2 (unreleased)
 ------------------
 
+New Features
+~~~~~~~~~~~~
+- Refactor the ``show_versions`` function now to improve performance and
+  print the output in a nicer table-like format.
+
 Internal Changes
 ~~~~~~~~~~~~~~~~
 - Use ``pyright`` for type checking and fix all typing issues that it raised.
