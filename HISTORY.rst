@@ -2,7 +2,7 @@
 History
 =======
 
-0.1.2 (unreleased)
+0.1.2 (2023-01-08)
 ------------------
 
 New Features
@@ -34,4 +34,3 @@ Breaking Changes
 ------------------
 
 - First release on PyPI.
-
