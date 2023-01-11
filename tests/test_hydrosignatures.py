@@ -18,7 +18,7 @@ def assert_close(a: float, b: float) -> None:
 @pytest.fixture
 def datasets() -> Tuple[pd.Series, pd.Series, Dict[str, Any]]:
     df = pd.read_csv(Path("tests", "test_data.csv"), index_col=0, parse_dates=True)
-    with open(Path("tests", "test_data.json")) as f:
+    with Path("tests", "test_data.json").open("r") as f:
         sig_expected = json.load(f)
     return df.q_mmpd, df.p_mmpd, sig_expected
 
