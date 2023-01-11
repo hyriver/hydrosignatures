@@ -20,6 +20,13 @@ repos:
       name: Autoformat setup.cfg
       args: [--min-py3-version, "3.8", "--include-version-classifiers"]
 
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.3.1
+    hooks:
+    - id: pyupgrade
+      name: Upgrade sytnax to python 3.8+ with pyupgrade
+      args: [--py38-plus]
+
   - repo: https://github.com/hadialqattan/pycln
     rev: v2.1.2
     hooks:
@@ -86,12 +93,13 @@ repos:
     - id: codespell
       name: Check common misspellings in text files with codespell.
 
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+  - repo: https://github.com/dosisod/refurb
+    rev: v1.10.0
     hooks:
-    - id: pyupgrade
-      name: Upgrade sytnax to python 3.8+ with pyupgrade
-      args: [--py38-plus]
+    - id: refurb
+      name: Modernizing Python codebases using Refurb
+      additional_dependencies:
+      - numpy
 
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
