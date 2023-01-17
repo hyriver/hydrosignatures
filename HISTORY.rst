@@ -2,6 +2,13 @@
 History
 =======
 
+0.1.3 (unreleased)
+------------------
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+- Fully migrate ``setup.cfg`` and ``setup.py`` to ``pyproject.toml``.
+
 0.1.2 (2023-01-08)
 ------------------
 
