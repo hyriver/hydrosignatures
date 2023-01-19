@@ -14,7 +14,7 @@ import pandas as pd
 import xarray as xr
 from scipy import signal
 
-from .exceptions import InputRangeError, InputTypeError, InputValueError
+from hydrosignatures.exceptions import InputRangeError, InputTypeError, InputValueError
 
 try:
     from numba import config as numba_config
