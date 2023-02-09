@@ -113,7 +113,7 @@ def pre_commit(session: nox.Session) -> None:
         activate_virtualenv_in_precommit_hooks(session)
 
 
-@nox.session(name="type-check", python="3.11")
+@nox.session(name="type-check", python="3.10")
 def type_check(session: nox.Session) -> None:
     "Run Pyright."
     install_deps(session, "speedup")
