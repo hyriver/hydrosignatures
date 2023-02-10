@@ -16,7 +16,7 @@ def get_package_name() -> str:
         return tomli.load(f)["project"]["name"]
 
 
-python_versions = ["3.11"]
+python_versions = ["3.10"]
 package = get_package_name()
 gh_deps = {
     "async_retriever": [],
