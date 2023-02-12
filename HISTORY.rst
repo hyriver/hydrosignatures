@@ -11,7 +11,9 @@ Bug Fixes
   includes NANs, it returns NAN. Now, the function correctly
   handles NAN values. Also, this function now works with any
   array-like input, i.e., ``pandas.Series``, ``pandas.DataFrame``,
-  ``numpy.ndarray``, and ``xarray.DataArray``.
+  ``numpy.ndarray``, and ``xarray.DataArray``. Also, the denominator
+  should have been divided by 100 since the input bins are
+  percentiles.
 
 0.1.12 (2023-02-10)
 -------------------
