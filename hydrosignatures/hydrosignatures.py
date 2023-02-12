@@ -169,7 +169,7 @@ def compute_fdc_slope(
 
     q = __to_numpy(discharge, no_nan=False).squeeze()
     q = np.log(q.clip(1e-3)) if log else q
-    slp = np.diff(np.nanpercentile(q, bins, axis=0), axis=0).T / np.diff(bins)
+    slp = np.diff(np.nanpercentile(q, bins, axis=0), axis=0).T / (np.diff(bins) / 100.0)
     return slp
 
 
