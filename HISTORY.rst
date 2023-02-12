@@ -9,7 +9,9 @@ Bug Fixes
 ~~~~~~~~~
 - Address an issue in ``compute_fdc_slope`` where if the input
   includes NANs, it returns NAN. Now, the function correctly
-  handles NAN values.
+  handles NAN values. Also, this function now works with any
+  array-like input, i.e., ``pandas.Series``, ``pandas.DataFrame``,
+  ``numpy.ndarray``, and ``xarray.DataArray``.
 
 0.1.12 (2023-02-10)
 -------------------
