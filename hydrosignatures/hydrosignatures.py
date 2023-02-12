@@ -6,7 +6,7 @@ import functools
 import json
 import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, NamedTuple, TypeVar, Union, cast, Callable, Any
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, TypeVar, Union, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -30,8 +30,9 @@ except ImportError:
     njit = None
 
     R = TypeVar("R")
-    def ngjit(ntypes: str, parallel: bool | None=None)->Callable[..., Any]:
-        def decorator_njit(func: Callable[..., R])->Callable[..., R]:
+
+    def ngjit(ntypes: str, parallel: bool | None = None) -> Callable[..., Any]:
+        def decorator_njit(func: Callable[..., R]) -> Callable[..., R]:
             @functools.wraps(func)
             def wrapper_decorator(*args: Any, **kwargs: Any):
                 return func(*args, **kwargs)
@@ -116,14 +117,36 @@ def compute_exceedance(daily: pd.DataFrame | pd.Series, threshold: float = 1e-3)
     return pd.concat(fdc, axis=1)
 
 
+def __to_numpy(arr: ArrayLike) -> npt.NDArray[np.float64]:
+    """Convert array to numpy array."""
+    if isinstance(arr, (pd.Series, pd.DataFrame)):
+        q = arr.to_numpy("f8")  # type: ignore
+    elif isinstance(arr, xr.DataArray):
+        q = arr.astype("f8").to_numpy()  # type: ignore
+    elif isinstance(arr, np.ndarray):
+        q = arr.astype("f8")
+    else:
+        raise InputTypeError(
+            "discharge", "pandas.Series, pandas.DataFrame, numpy.ndarray or xarray.DataArray"
+        )
+    q = cast("npt.NDArray[np.float64]", q)
+
+    if np.isnan(q).any():
+        raise InputTypeError("discharge", "array/dataframe without NaN values")
+
+    if q.ndim == 1:
+        q = np.expand_dims(q, axis=0)
+    return q
+
+
 def compute_fdc_slope(
-    discharge: pd.Series, bins: tuple[int, ...], log: bool
+    discharge: ArrayLike, bins: tuple[int, ...], log: bool
 ) -> npt.NDArray[np.float64]:
     """Compute FDC slopes between the given lower and upper percentiles.
 
     Parameters
     ----------
-    discharge : pandas.Series
+    discharge : pandas.Series or pandas.DataFrame or numpy.ndarray or xarray.DataArray
         The discharge data to be processed.
     bins : tuple of int
         Percentile bins for computing FDC slopes between., e.g., (33, 67)
@@ -144,10 +167,9 @@ def compute_fdc_slope(
     ):
         raise InputRangeError("bins", "tuple with sorted values between 1 and 100")
 
-    q = np.log(discharge.clip(1e-3)) if log else discharge
-    slp = np.diff(np.nanpercentile(q, bins, axis=0), axis=0) / np.diff(bins)
-    if slp.ndim > 1:
-        return slp.squeeze()
+    q = __to_numpy(discharge).squeeze()
+    q = np.log(q.clip(1e-3)) if log else q
+    slp = np.diff(np.nanpercentile(q, bins, axis=0), axis=0).T / np.diff(bins)
     return slp
 
 
@@ -220,24 +242,6 @@ def __batch_backward(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np
     for i in prange(q.shape[0]):
         qb[i] = __backward_pass(q[i], alpha)
     return qb
-
-
-def __to_numpy(arr: ArrayLike) -> npt.NDArray[np.float64]:
-    """Convert array to numpy array."""
-    if isinstance(arr, (pd.Series, pd.DataFrame)):
-        q = arr.to_numpy("f8")  # type: ignore
-    elif isinstance(arr, xr.DataArray):
-        q = arr.astype("f8").to_numpy()  # type: ignore
-    else:
-        q = arr.astype("f8")
-    q = cast("npt.NDArray[np.float64]", q)
-
-    if np.isnan(q).any():
-        raise InputTypeError("discharge", "array/dataframe without NaN values")
-
-    if q.ndim == 1:
-        q = np.expand_dims(q, axis=0)
-    return q
 
 
 def compute_baseflow(
