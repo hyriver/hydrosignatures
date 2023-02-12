@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.13 (unreleased)
+-------------------
+
+Bug Fixes
+~~~~~~~~~
+- Address an issue in ``compute_fdc_slope`` where if the input
+  includes NANs, it returns NAN. Now, the function correctly
+  handles NAN values.
+
 0.1.12 (2023-02-10)
 -------------------
 
