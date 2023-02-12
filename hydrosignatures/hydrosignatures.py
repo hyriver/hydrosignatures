@@ -6,7 +6,7 @@ import functools
 import json
 import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, NamedTuple, TypeVar, Union, cast
+from typing import TYPE_CHECKING, NamedTuple, TypeVar, Union, cast, Callable, Any
 
 import numpy as np
 import numpy.typing as npt
@@ -29,10 +29,11 @@ except ImportError:
     numba_config = None
     njit = None
 
-    def ngjit(ntypes, parallel=None):  # type: ignore
-        def decorator_njit(func):  # type: ignore
+    R = TypeVar("R")
+    def ngjit(ntypes: str, parallel: bool | None=None)->Callable[..., Any]:
+        def decorator_njit(func: Callable[..., R])->Callable[..., R]:
             @functools.wraps(func)
-            def wrapper_decorator(*args, **kwargs):  # type: ignore
+            def wrapper_decorator(*args: Any, **kwargs: Any):
                 return func(*args, **kwargs)
 
             return wrapper_decorator
@@ -42,11 +43,9 @@ except ImportError:
 
 EPS = np.float64(1e-6)
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     DF = TypeVar("DF", pd.DataFrame, pd.Series)
     ArrayVar = TypeVar("ArrayVar", pd.Series, pd.DataFrame, npt.NDArray[np.float64], xr.DataArray)
-    ArrayLike: TypeAlias = Union[pd.Series, pd.DataFrame, npt.NDArray[np.float64], xr.DataArray]
+    ArrayLike = Union[pd.Series, pd.DataFrame, npt.NDArray[np.float64], xr.DataArray]
 
 __all__ = [
     "HydroSignatures",
@@ -146,7 +145,7 @@ def compute_fdc_slope(
         raise InputRangeError("bins", "tuple with sorted values between 1 and 100")
 
     q = np.log(discharge.clip(1e-3)) if log else discharge
-    slp = np.diff(np.percentile(q, bins, axis=0), axis=0) / np.diff(bins)
+    slp = np.diff(np.nanpercentile(q, bins, axis=0), axis=0) / np.diff(bins)
     if slp.ndim > 1:
         return slp.squeeze()
     return slp
@@ -228,9 +227,10 @@ def __to_numpy(arr: ArrayLike) -> npt.NDArray[np.float64]:
     if isinstance(arr, (pd.Series, pd.DataFrame)):
         q = arr.to_numpy("f8")  # type: ignore
     elif isinstance(arr, xr.DataArray):
-        q = arr.astype("f8").to_numpy()
+        q = arr.astype("f8").to_numpy()  # type: ignore
     else:
         q = arr.astype("f8")
+    q = cast("npt.NDArray[np.float64]", q)
 
     if np.isnan(q).any():
         raise InputTypeError("discharge", "array/dataframe without NaN values")
@@ -289,7 +289,7 @@ def compute_baseflow(
     if isinstance(discharge, pd.DataFrame):
         return pd.DataFrame(qb, index=discharge.index, columns=discharge.columns)  # type: ignore
     if isinstance(discharge, xr.DataArray):
-        return discharge.copy(data=qb)  # type: ignore
+        return discharge.copy(data=qb)
     return qb  # type: ignore
 
 
