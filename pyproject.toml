@@ -39,9 +39,6 @@ dependencies = [
   "xarray>=2022.03",
 ]
 [project.optional-dependencies]
-dev = [
-  "typing-extensions",
-]
 speedup = [
   "numba",
 ]
