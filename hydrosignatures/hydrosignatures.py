@@ -117,7 +117,7 @@ def compute_exceedance(daily: pd.DataFrame | pd.Series, threshold: float = 1e-3)
     return pd.concat(fdc, axis=1)
 
 
-def __to_numpy(arr: ArrayLike) -> npt.NDArray[np.float64]:
+def __to_numpy(arr: ArrayLike, no_nan: bool = True) -> npt.NDArray[np.float64]:
     """Convert array to numpy array."""
     if isinstance(arr, (pd.Series, pd.DataFrame)):
         q = arr.to_numpy("f8")  # type: ignore
@@ -131,7 +131,7 @@ def __to_numpy(arr: ArrayLike) -> npt.NDArray[np.float64]:
         )
     q = cast("npt.NDArray[np.float64]", q)
 
-    if np.isnan(q).any():
+    if no_nan and np.isnan(q).any():
         raise InputTypeError("discharge", "array/dataframe without NaN values")
 
     if q.ndim == 1:
@@ -167,7 +167,7 @@ def compute_fdc_slope(
     ):
         raise InputRangeError("bins", "tuple with sorted values between 1 and 100")
 
-    q = __to_numpy(discharge).squeeze()
+    q = __to_numpy(discharge, no_nan=False).squeeze()
     q = np.log(q.clip(1e-3)) if log else q
     slp = np.diff(np.nanpercentile(q, bins, axis=0), axis=0).T / np.diff(bins)
     return slp
