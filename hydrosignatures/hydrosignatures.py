@@ -267,7 +267,7 @@ def compute_baseflow(
         Same discharge input array-like but values replaced with computed baseflow values.
     """
     if not has_numba:
-        warnings.warn("Numba not installed. Using slow pure python version.", UserWarning)
+        warnings.warn("Numba not installed. Using slow pure python version.", UserWarning, stacklevel=2)
 
     if n_passes < 3 or n_passes % 2 == 0:
         raise InputRangeError("n_passes", "odd numbers greater than 2")
