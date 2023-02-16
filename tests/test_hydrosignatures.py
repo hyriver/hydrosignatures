@@ -23,6 +23,7 @@ def datasets() -> Tuple[pd.Series, pd.Series, Dict[str, Any]]:
     return df.q_mmpd, df.p_mmpd, sig_expected
 
 
+@pytest.mark.speedup
 def test_signatures(datasets):
     q_mmpd, p_mmpd, sig_expected = datasets
     sig = hs.HydroSignatures(q_mmpd, p_mmpd)
