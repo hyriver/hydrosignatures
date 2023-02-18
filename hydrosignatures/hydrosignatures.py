@@ -6,7 +6,7 @@ import functools
 import json
 import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, TypeVar, Union, cast, overload
 
 import numpy as np
 import numpy.typing as npt
@@ -328,30 +328,58 @@ def compute_bfi(
     return qb.sum() / qsum
 
 
-def compute_ai(pet: ArrayLike, prcp: ArrayLike) -> np.float64 | npt.NDArray[np.float64]:
-    """Compute the aridity index.
+@overload
+def compute_ai(pet: pd.Series, prcp: pd.Series) -> np.float64:
+    ...
+
+
+@overload
+def compute_ai(pet: pd.DataFrame, prcp: pd.DataFrame) -> pd.Series:  # type: ignore
+    ...
+
+
+@overload
+def compute_ai(pet: xr.DataArray, prcp: xr.DataArray) -> xr.DataArray:  # type: ignore
+    ...
+
+
+def compute_ai(
+    pet: pd.Series | pd.DataFrame | xr.DataArray, prcp: pd.Series | pd.DataFrame | xr.DataArray
+) -> np.float64 | pd.Series | xr.DataArray:
+    """Compute (Budyko) aridity index (PET/Prcp).
 
     Parameters
     ----------
-    pet : numpy.ndarray or pandas.DataFrame or pandas.Series or xarray.DataArray
-        Potential evapotranspiration time series that must not have any missing
-        values. It can also be a 2D array where each row is a time series.
-    prcp : numpy.ndarray or pandas.DataFrame or pandas.Series or xarray.DataArray
-        Precipitation time series that must not have any missing
-        values. It can also be a 2D array where each row is a time series.
+    pet : pandas.DataFrame or pandas.Series or xarray.DataArray
+        Potential evapotranspiration time series. Each column can
+        correspond to PET a different location. Note that ``pet`` and ``prcp``
+        must have the same shape.
+    prcp : pandas.DataFrame or pandas.Series or xarray.DataArray
+        Precipitation time series. Each column can
+        correspond to PET a different location. Note that ``pet`` and ``prcp``
+        must have the same shape.
 
     Returns
     -------
-    numpy.float64 or numpy.ndarray
+    float or pandas.Series or xarray.DataArray
         The aridity index.
     """
-    psum = __to_numpy(prcp).sum(axis=1)
-    if psum < EPS:
-        return np.float64(0.0)
-    ai = __to_numpy(pet).sum(axis=1) / psum
-    if ai.size == 1:
-        return np.float64(ai[0])
-    return ai.squeeze()
+    if pet.shape != prcp.shape:
+        raise InputTypeError("pet/prcp", "arrays with the same shape")
+
+    if isinstance(pet, xr.DataArray) and isinstance(prcp, xr.DataArray):
+        ai = pet.groupby("time.year").mean() / prcp.groupby("time.year").mean()
+        return ai.mean(dim="year")
+
+    if isinstance(pet, pd.Series) and isinstance(prcp, pd.Series):
+        ai = pet.resample("Y").mean() / prcp.resample("Y").mean()  # type: ignore
+        return ai.mean().item()
+
+    if isinstance(pet, pd.DataFrame) and isinstance(prcp, pd.DataFrame):
+        ai = pet.resample("Y").mean() / prcp.resample("Y").mean()  # type: ignore
+        return ai.mean()
+
+    raise InputTypeError("pet/prcp", "pandas.Series/DataFrame or xarray.DataArray")
 
 
 def compute_si_walsh(data: pd.Series | pd.DataFrame) -> pd.Series:
