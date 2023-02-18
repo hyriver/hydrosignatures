@@ -14,6 +14,9 @@ Bug Fixes
   ``numpy.ndarray``, and ``xarray.DataArray``. Also, the denominator
   should have been divided by 100 since the input bins are
   percentiles.
+- Fix a bug in ``compute_ai`` where instead of using mean annual
+  average values, daily values was being used. Also, this function
+  now accepts ``xarray.DataArray`` too.
 
 0.1.12 (2023-02-10)
 -------------------
