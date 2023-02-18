@@ -48,13 +48,6 @@ test = [
   "pytest-cov",
   "pytest-xdist[psutil]",
 ]
-typeguard = [
-  "coverage[toml]",
-  "pygments",
-  "pytest-cov",
-  "pytest-xdist[psutil]",
-  "typeguard",
-]
 [project.urls]
 CI = "https://github.com/hyriver/hydrosignatures/actions"
 Changelog = "https://docs.hyriver.io/changelogs/hydrosignatures.html"
