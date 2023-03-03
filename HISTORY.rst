@@ -2,7 +2,7 @@
 History
 =======
 
-0.1.13 (unreleased)
+0.14.0 (unreleased)
 -------------------
 
 Bug Fixes
@@ -17,6 +17,10 @@ Bug Fixes
 - Fix a bug in ``compute_ai`` where instead of using mean annual
   average values, daily values was being used. Also, this function
   now accepts ``xarray.DataArray`` too.
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+- Sync all minor versions of HyRiver packages to 0.14.0.
 
 0.1.12 (2023-02-10)
 -------------------
