@@ -2,6 +2,14 @@
 History
 =======
 
+0.14.1 (unreleased)
+-------------------
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+- Explicitly use ``nopython`` mode in ``numba``-decorated functions
+  to avoid deprecation warnings.
+
 0.14.0 (2023-03-05)
 -------------------
 
