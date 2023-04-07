@@ -18,16 +18,16 @@ from hydrosignatures.exceptions import InputRangeError, InputTypeError, InputVal
 
 try:
     from numba import config as numba_config
-    from numba import njit, prange
+    from numba import jit, prange
 
-    ngjit = functools.partial(njit, cache=True, nogil=True)
+    ngjit = functools.partial(jit, nopython=True, cache=True, nogil=True)
     numba_config.THREADING_LAYER = "workqueue"
     has_numba = True
 except ImportError:
     has_numba = False
     prange = range
     numba_config = None
-    njit = None
+    jit = None
 
     R = TypeVar("R")
 
@@ -207,11 +207,13 @@ def compute_rolling_mean_monthly(daily: DF) -> DF:
 @ngjit("f8[::1](f8[::1], f8)")
 def __forward_pass(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np.float64]:
     """Perform forward pass of the Lyne and Hollick filter."""
-    qf = np.zeros_like(q)
-    qf[0] = q[0]
+    qb = np.zeros_like(q)
+    qb[0] = q[0]
     for i in range(1, q.size):
-        qf[i] = alpha * qf[i - 1] + 0.5 * (1 + alpha) * (q[i] - q[i - 1])
-    qb = np.where(qf > 0, q - qf, q)
+        qb[i] = alpha * qb[i - 1] + 0.5 * (1 + alpha) * (q[i] - q[i - 1])
+
+    for i in range(q.size):
+        qb[i] = q[i] - qb[i] if qb[i] > 0 else q[i]
     return qb
 
 
@@ -595,7 +597,7 @@ class HydroSignatures:
     def seasonality_index(self) -> np.float64:
         """Compute seasonality index."""
         if self.si_method == "walsh":
-            return np.float64(compute_si_walsh(self.q_mmpt))
+            return np.float64(compute_si_walsh(self.q_mmpt).iloc[0])
         if self.si_method == "markham":
             return np.float64(compute_si_markham(self.q_mmpt).seasonality_index.iloc[0])
         raise InputValueError("method", ["walsh", "markham"])
