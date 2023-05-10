@@ -173,7 +173,7 @@ def compute_fdc_slope(
     return slp
 
 
-def compute_mean_monthly(daily: DF, index_abbr: bool = False) -> DF:
+def compute_mean_monthly(daily: DF, index_abbr: bool = False, cms: bool = False) -> DF:
     """Compute mean monthly summary from daily data.
 
     Parameters
@@ -183,13 +183,21 @@ def compute_mean_monthly(daily: DF, index_abbr: bool = False) -> DF:
     index_abbr : bool, optional
         Whether to use abbreviated month names as index instead of
         numbers, defaults to False.
+    cms : bool, optional
+        Whether the input data is in cubic meters per second (cms),
+        defaults to False. If True, the mean monthly summary will be
+        computed by taking the mean of the daily data, otherwise the
+        sum of the daily data will be used.
 
     Returns
     -------
     pandas.Series or pandas.DataFrame
         Mean monthly summary.
     """
-    monthly = daily.resample("M", kind="period").sum()
+    if cms:
+        monthly = daily.resample("M", kind="period").mean()
+    else:
+        monthly = daily.resample("M", kind="period").sum()
     mean_month = monthly.groupby(monthly.index.month).mean()
     mean_month.index.name = "month"
     if index_abbr:
