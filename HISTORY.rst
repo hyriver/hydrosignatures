@@ -2,6 +2,18 @@
 History
 =======
 
+0.15.1 (unreleased)
+-------------------
+
+New Features
+~~~~~~~~~~~~
+- Add an option to ``compute_mean_monthly`` for specifying whether
+  the input data unit is in mm/day or m3/s. If m3/s, then the
+  monthly values are computed by taking the mean of the
+  daily values for each month. If mm/day, then the monthly
+  values are computed by taking the sum of the daily values for
+  each month.
+
 0.15.0 (2023-05-07)
 -------------------
 From release 0.15 onward, all minor versions of HyRiver packages
