@@ -241,8 +241,10 @@ def __backward_pass(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np.
     qf[-1] = q[-1]
     for i in range(q.size - 2, -1, -1):
         qf[i] = alpha * qf[i + 1] + 0.5 * (1 + alpha) * (q[i] - q[i + 1])
-    qb = np.where(qf > 0, q - qf, q)
-    return qb
+
+    for i in prange(qf.shape[0]):
+        qf[i] = q[i] - qf[i] if qf[i] > 0 else q[i]
+    return qf
 
 
 @ngjit("f8[:,::1](f8[:,::1], f8)", parallel=True)
