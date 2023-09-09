@@ -35,7 +35,7 @@ dependencies = [
   "numpy>=1.21",
   "pandas>=1",
   "scipy",
-  "xarray>=2023.04",
+  "xarray>=2023.01",
 ]
 [project.optional-dependencies]
 speedup = [
