@@ -1,4 +1,5 @@
 """Function for computing hydrologic signature."""
+# pyright: reportGeneralTypeIssues=false
 from __future__ import annotations
 
 import calendar
@@ -44,9 +45,11 @@ except ImportError:
 
 EPS = np.float64(1e-6)
 if TYPE_CHECKING:
-    DF = TypeVar("DF", pd.DataFrame, pd.Series)
-    ArrayVar = TypeVar("ArrayVar", pd.Series, pd.DataFrame, npt.NDArray[np.float64], xr.DataArray)
-    ArrayLike = Union[pd.Series, pd.DataFrame, npt.NDArray[np.float64], xr.DataArray]
+    DF = TypeVar("DF", pd.DataFrame, pd.Series[float])
+    ArrayVar = TypeVar(
+        "ArrayVar", pd.Series[float], pd.DataFrame, npt.NDArray[np.float64], xr.DataArray
+    )
+    ArrayLike = Union[pd.Series[float], pd.DataFrame, npt.NDArray[np.float64], xr.DataArray]
 
 __all__ = [
     "HydroSignatures",
@@ -120,9 +123,9 @@ def compute_exceedance(daily: pd.DataFrame | pd.Series, threshold: float = 1e-3)
 def __to_numpy(arr: ArrayLike, no_nan: bool = True) -> npt.NDArray[np.float64]:
     """Convert array to numpy array."""
     if isinstance(arr, (pd.Series, pd.DataFrame)):
-        q = arr.to_numpy("f8")  # type: ignore
+        q = arr.to_numpy("f8")
     elif isinstance(arr, xr.DataArray):
-        q = arr.astype("f8").to_numpy()  # type: ignore
+        q = arr.astype("f8").to_numpy()
     elif isinstance(arr, np.ndarray):
         q = arr.astype("f8")
     else:
@@ -303,12 +306,12 @@ def compute_baseflow(
     qb[qb < 0] = 0.0
     qb = qb.squeeze()
     if isinstance(discharge, pd.Series):
-        return pd.Series(qb, index=discharge.index)  # type: ignore
+        return pd.Series(qb, index=discharge.index)
     if isinstance(discharge, pd.DataFrame):
-        return pd.DataFrame(qb, index=discharge.index, columns=discharge.columns)  # type: ignore
+        return pd.DataFrame(qb, index=discharge.index, columns=discharge.columns)
     if isinstance(discharge, xr.DataArray):
         return discharge.copy(data=qb)
-    return qb  # type: ignore
+    return qb
 
 
 def compute_bfi(
@@ -346,18 +349,19 @@ def compute_ai(pet: pd.Series, prcp: pd.Series) -> np.float64:
 
 
 @overload
-def compute_ai(pet: pd.DataFrame, prcp: pd.DataFrame) -> pd.Series:  # type: ignore
+def compute_ai(pet: pd.DataFrame, prcp: pd.DataFrame) -> pd.Series[float]:
     ...
 
 
 @overload
-def compute_ai(pet: xr.DataArray, prcp: xr.DataArray) -> xr.DataArray:  # type: ignore
+def compute_ai(pet: xr.DataArray, prcp: xr.DataArray) -> xr.DataArray:
     ...
 
 
 def compute_ai(
-    pet: pd.Series | pd.DataFrame | xr.DataArray, prcp: pd.Series | pd.DataFrame | xr.DataArray
-) -> np.float64 | pd.Series | xr.DataArray:
+    pet: pd.Series[float] | pd.DataFrame | xr.DataArray,
+    prcp: pd.Series[float] | pd.DataFrame | xr.DataArray,
+) -> np.float64 | pd.Series[float] | xr.DataArray:
     """Compute (Budyko) aridity index (PET/Prcp).
 
     Parameters
@@ -384,17 +388,17 @@ def compute_ai(
         return ai.mean(dim="year")
 
     if isinstance(pet, pd.Series) and isinstance(prcp, pd.Series):
-        ai = pet.resample("Y").mean() / prcp.resample("Y").mean()  # type: ignore
+        ai = pet.resample("Y").mean() / prcp.resample("Y").mean()
         return ai.mean().item()
 
     if isinstance(pet, pd.DataFrame) and isinstance(prcp, pd.DataFrame):
-        ai = pet.resample("Y").mean() / prcp.resample("Y").mean()  # type: ignore
+        ai = pet.resample("Y").mean() / prcp.resample("Y").mean()
         return ai.mean()
 
     raise InputTypeError("pet/prcp", "pandas.Series/DataFrame or xarray.DataArray")
 
 
-def compute_si_walsh(data: pd.Series | pd.DataFrame) -> pd.Series:
+def compute_si_walsh(data: pd.Series[float] | pd.DataFrame) -> pd.Series[float]:
     """Compute seasonality index based on Walsh and Lawler, 1981 method."""
     annual = data.resample("Y", kind="period").sum()
     monthly = data.resample("M", kind="period").sum()
@@ -409,7 +413,7 @@ def compute_si_walsh(data: pd.Series | pd.DataFrame) -> pd.Series:
     return si
 
 
-def compute_si_markham(data: pd.Series | pd.DataFrame) -> pd.DataFrame:
+def compute_si_markham(data: pd.Series[float] | pd.DataFrame) -> pd.DataFrame:
     """Compute seasonality index based on Markham, 1970."""
     if isinstance(data, pd.Series):
         data = data.to_frame()
