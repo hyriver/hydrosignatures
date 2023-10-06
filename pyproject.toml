@@ -43,7 +43,6 @@ speedup = [
   "numba",
 ]
 test = [
-  "coverage[toml]",
   "pygeohydro",
   "pytest-cov",
   "pytest-xdist[psutil]",
@@ -197,6 +196,8 @@ filterwarnings = [
   "ignore:.*--rsyncdir command line argument.*",
   "ignore:.*numpy.ndarray size changed.*",
   "ignore:.*'cgi' is deprecated.*",
+  "ignore:.*Calling float on a single element.*",
+  "ignore:.*Shapely GEOS version.*",
 ]
 testpaths = [
   "tests",
