@@ -22,20 +22,21 @@ try:
     from numba import jit, prange
 
     ngjit = functools.partial(jit, nopython=True, cache=True, nogil=True)
-    numba_config.THREADING_LAYER = "workqueue"
+    numba_config.THREADING_LAYER = "workqueue"  # pyright: ignore[reportGeneralTypeIssues]
     has_numba = True
 except ImportError:
     has_numba = False
     prange = range
-    numba_config = None
-    jit = None
 
-    R = TypeVar("R")
+    T = TypeVar("T")
+    Func = Callable[..., T]
 
-    def ngjit(ntypes: str, parallel: bool | None = None) -> Callable[..., Any]:
-        def decorator_njit(func: Callable[..., R]) -> Callable[..., R]:
+    def ngjit(
+        signature_or_function: str | Func[T], parallel: bool = False
+    ) -> Callable[[Func[T]], Func[T]]:
+        def decorator_njit(func: Func[T]) -> Func[T]:
             @functools.wraps(func)
-            def wrapper_decorator(*args: Any, **kwargs: Any):
+            def wrapper_decorator(*args: tuple[Any, ...], **kwargs: dict[str, Any]) -> T:
                 return func(*args, **kwargs)
 
             return wrapper_decorator
