@@ -15,7 +15,7 @@ def assert_close(a: float, b: float) -> None:
     assert np.isclose(a, b, rtol=1e-3).all()
 
 
-@pytest.fixture
+@pytest.fixture()
 def datasets() -> Tuple[pd.Series, pd.Series, Dict[str, Any]]:
     df = pd.read_csv(Path("tests", "test_data.csv"), index_col=0, parse_dates=True)
     with Path("tests", "test_data.json").open("r") as f:
@@ -23,7 +23,7 @@ def datasets() -> Tuple[pd.Series, pd.Series, Dict[str, Any]]:
     return df.q_mmpd, df.p_mmpd, sig_expected
 
 
-@pytest.mark.speedup
+@pytest.mark.speedup()
 def test_signatures(datasets):
     q_mmpd, p_mmpd, sig_expected = datasets
     sig = hs.HydroSignatures(q_mmpd, p_mmpd)

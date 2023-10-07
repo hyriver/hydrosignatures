@@ -7,6 +7,6 @@ from hydrosignatures import InputTypeError
 
 
 def test_same_input_length():
-    with pytest.raises(InputTypeError) as ex:
-        _ = hs.HydroSignatures(pd.Series(np.arange(10)), pd.Series(np.arange(11)))
-        assert "same length" in str(ex.value)
+    q_mmpt, p_mmpt = pd.Series(np.arange(10)), pd.Series(np.arange(11))
+    with pytest.raises(InputTypeError, match="same length"):
+        _ = hs.HydroSignatures(q_mmpt, p_mmpt)
