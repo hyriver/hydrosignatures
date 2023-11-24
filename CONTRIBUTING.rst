@@ -17,12 +17,6 @@ Report Bugs
 
 Report bugs at https://github.com/hyriver/hydrosignatures/issues.
 
-If you are reporting a bug, please include:
-
-* Your operating system name and version.
-* Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
-
 Fix Bugs
 ~~~~~~~~
 
@@ -39,8 +33,8 @@ and "help wanted" is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-PyNHD could always use more documentation, whether as part of the
-official PyNHD docs, in docstrings, or even on the web in blog posts,
+HyroSignatures could always use more documentation, whether as part of the
+official HyroSignatures docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
@@ -58,24 +52,24 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up PyNHD for local development.
+Ready to contribute? Here's how to set up hydrosignatures for local development.
 
-1. Fork the PyNHD repo through the GitHub website.
-2. Clone your fork locally and add the main PyNHD as the upstream remote:
+1. Fork the HyroSignatures repo through the GitHub website.
+2. Clone your fork locally and add the main ``hydrosignatures`` as the upstream remote:
 
 .. code-block:: console
 
     $ git clone git@github.com:your_name_here/hydrosignatures.git
     $ git remote add upstream git@github.com:hyriver/hydrosignatures.git
 
-3. Install your local copy into a virtualenv. Assuming you have Conda installed, this is how you
-   can set up your fork for local development:
+3. Install your local copy into a virtualenv. Assuming you have ``mamba`` installed,
+   this is how you can set up your fork for local development:
 
 .. code-block:: console
 
     $ cd hydrosignatures/
-    $ conda env create -f ci/requirements/environment.yml
-    $ conda activate hydrosignatures-dev
+    $ mamba env create -f ci/requirements/environment-dev.yml
+    $ mamba activate hydrosignatures-dev
     $ python -m pip install . --no-deps
 
 4. Create a branch for local development:
@@ -85,14 +79,7 @@ Ready to contribute? Here's how to set up PyNHD for local development.
     $ git checkout -b bugfix-or-feature/name-of-your-bugfix-or-feature
     $ git push
 
-5. Before you first commit, pre-commit hooks needs to be setup:
-
-.. code-block:: console
-
-    $ pre-commit install
-    $ pre-commit run --all-files
-
-6. Now you can make your changes locally, make sure to add a description of
+5. Now you can make your changes locally, make sure to add a description of
    the changes to ``HISTORY.rst`` file and add extra tests, if applicable,
    to ``tests`` folder. Also, make sure to give yourself credit by adding
    your name at the end of the item(s) that you add in the history like this
@@ -104,25 +91,43 @@ Ready to contribute? Here's how to set up PyNHD for local development.
     $ git fetch upstream
     $ git merge upstream/name-of-your-branch
 
-7. Then lint and test the code:
+6. Then create a new environment for linting and another for testing:
 
 .. code-block:: console
 
-    $ make lint
-    $ make coverage
+    $ mamba create -n py11 python=3.11 nox tomli pre-commit codespell
+    $ mamba activate py11
+    $ nox -s pre-commit
+    $ nox -s type-check
 
-8. If you are making breaking changes make sure to reflect them in
+    $ mamba create -n py38 python=3.8 nox tomli pre-commit codespell
+    $ mamba activate py38
+    $ nox -s tests
+
+   Note that if Python 3.11 is already installed on your system, you can
+   skip creating the ``py11`` environment and just use your system's Python 3.11
+   to run the linting and type-checking tests, like this:
+
+.. code-block:: console
+
+    $ mamba create -n py38 python=3.8 nox tomli pre-commit codespell
+    $ mamba activate py38
+    $ nox
+
+7. If you are making breaking changes make sure to reflect them in
    the documentation, ``README.rst``, and tests if necessary.
 
-9. Commit your changes and push your branch to GitHub:
+8. Commit your changes and push your branch to GitHub. Start the commit message with
+   ``ENH:``, ``BUG:``, ``DOC:`` to indicate whether the commit is a new feature,
+   documentation related, or a bug fix. For example:
 
 .. code-block:: console
 
     $ git add .
-    $ git commit -m "Your detailed description of your changes."
+    $ git commit -m "ENH: A detailed description of your changes."
     $ git push origin name-of-your-branch
 
-10. Submit a pull request through the GitHub website.
+9. Submit a pull request through the GitHub website.
 
 Tips
 ----
@@ -131,7 +136,7 @@ To run a subset of tests:
 
 .. code-block:: console
 
-    $ pytest -k "test_name1 or test_name2"
+    $ nox -s tests -- -n=1 -k "test_name1 or test_name2"
 
 Deploying
 ---------
