@@ -173,8 +173,7 @@ def flow_duration_curve_slope(discharge: ArrayLike, bins: tuple[int, ...], log: 
 
     q = __to_numpy(discharge, no_nan=False).squeeze()
     q = np.log(q.clip(1e-3)) if log else q
-    slp = np.diff(np.nanpercentile(q, bins, axis=0), axis=0).T / (np.diff(bins) / 100.0)
-    return slp
+    return np.diff(np.nanpercentile(q, bins, axis=0), axis=0).T / (np.diff(bins) / 100.0)
 
 
 def flashiness_index(daily: ArrayLike) -> FloatArray:
