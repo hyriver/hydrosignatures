@@ -44,7 +44,6 @@ speedup = [
   "numbagg",
 ]
 test = [
-  "pygeohydro",
   "pytest-cov",
   "pytest-sugar",
   "pytest-xdist[psutil]",
