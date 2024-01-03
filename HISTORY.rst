@@ -2,6 +2,22 @@
 History
 =======
 
+0.16.0 (2024-01-03)
+-------------------
+
+New Features
+~~~~~~~~~~~~
+- Add a new function called ``flashiness_index`` for computing the
+  flashiness index of a daily streamflow time series following
+  Baker et al. (2004).
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+- Improve function naming convention by removing the ``compute_``
+  prefix from all functions and spelling out the full name of the
+  function. For example, ``compute_fdc_slope`` and ``compute_ai`` are now
+  ``flow_duration_curve_slope`` and ``aridity_index``, respectively.
+
 0.15.2 (2023-09-22)
 -------------------
 
