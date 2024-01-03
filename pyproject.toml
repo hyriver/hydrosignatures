@@ -41,6 +41,7 @@ dependencies = [
 [project.optional-dependencies]
 speedup = [
   "numba",
+  "numbagg",
 ]
 test = [
   "pygeohydro",
