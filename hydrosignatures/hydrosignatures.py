@@ -55,7 +55,7 @@ __all__ = [
     "HydroSignatures",
     "flood_moments",
     "exceedance",
-    "fdc_slope",
+    "flow_duration_curve_slope",
     "flashiness_index",
     "mean_monthly",
     "rolling_mean_monthly",
@@ -145,7 +145,7 @@ def __to_numpy(arr: ArrayLike, no_nan: bool = True) -> FloatArray:
     return q
 
 
-def fdc_slope(discharge: ArrayLike, bins: tuple[int, ...], log: bool) -> FloatArray:
+def flow_duration_curve_slope(discharge: ArrayLike, bins: tuple[int, ...], log: bool) -> FloatArray:
     """Compute FDC slopes between the given lower and upper percentiles.
 
     Parameters
@@ -648,7 +648,7 @@ class HydroSignatures:
 
     def fdc_slope(self) -> FloatArray:
         """Compute FDC slopes between a list of lower and upper percentiles."""
-        return fdc_slope(self.q_mmpt, self.fdc_slope_bins, True)
+        return flow_duration_curve_slope(self.q_mmpt, self.fdc_slope_bins, True)
 
     def streamflow_elasticity(self) -> np.float64:
         """Compute streamflow elasticity."""
