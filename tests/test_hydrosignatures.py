@@ -1,8 +1,10 @@
-"""Tests for PyNHD package."""
+"""Tests for HydroSignatures package."""
+from __future__ import annotations
+
 import io
 import json
 from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -16,7 +18,7 @@ def assert_close(a: float, b: float) -> None:
 
 
 @pytest.fixture()
-def datasets() -> Tuple[pd.Series, pd.Series, Dict[str, Any]]:
+def datasets() -> tuple[pd.Series, pd.Series, dict[str, Any]]:
     df = pd.read_csv(Path("tests", "test_data.csv"), index_col=0, parse_dates=True)
     with Path("tests", "test_data.json").open("r") as f:
         sig_expected = json.load(f)
