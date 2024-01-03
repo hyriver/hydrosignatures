@@ -21,7 +21,7 @@ try:
     from numba import config as numba_config
     from numba import jit, prange
 
-    ngjit = functools.partial(jit, nopython=True, cache=True, nogil=True)
+    ngjit = functools.partial(jit, nopython=True, nogil=True)
     numba_config.THREADING_LAYER = "workqueue"  # pyright: ignore[reportGeneralTypeIssues]
     has_numba = True
 except ImportError:
@@ -47,28 +47,28 @@ except ImportError:
 EPS = np.float64(1e-6)
 if TYPE_CHECKING:
     DF = TypeVar("DF", pd.DataFrame, pd.Series[float])
-    ArrayVar = TypeVar(
-        "ArrayVar", pd.Series[float], pd.DataFrame, npt.NDArray[np.float64], xr.DataArray
-    )
-    ArrayLike = Union[pd.Series[float], pd.DataFrame, npt.NDArray[np.float64], xr.DataArray]
+    FloatArray = npt.NDArray[np.float64]
+    ArrayVar = TypeVar("ArrayVar", pd.Series[float], pd.DataFrame, FloatArray, xr.DataArray)
+    ArrayLike = Union[pd.Series[float], pd.DataFrame, FloatArray, xr.DataArray]
 
 __all__ = [
     "HydroSignatures",
-    "compute_flood_moments",
-    "compute_exceedance",
-    "compute_fdc_slope",
-    "compute_mean_monthly",
-    "compute_rolling_mean_monthly",
-    "compute_baseflow",
-    "compute_bfi",
-    "compute_ai",
-    "compute_si_walsh",
-    "compute_si_markham",
+    "flood_moments",
+    "exceedance",
+    "fdc_slope",
+    "flashiness_index",
+    "mean_monthly",
+    "rolling_mean_monthly",
+    "baseflow",
+    "baseflow_index",
+    "aridity_index",
+    "seasonality_index_walsh",
+    "seasonality_index_markham",
     "extract_extrema",
 ]
 
 
-def compute_flood_moments(streamflow: pd.DataFrame) -> pd.DataFrame:
+def flood_moments(streamflow: pd.DataFrame) -> pd.DataFrame:
     """Compute flood moments (MAF, CV, CS) from streamflow.
 
     Parameters
@@ -93,7 +93,7 @@ def compute_flood_moments(streamflow: pd.DataFrame) -> pd.DataFrame:
     return fm
 
 
-def compute_exceedance(daily: pd.DataFrame | pd.Series, threshold: float = 1e-3) -> pd.DataFrame:
+def exceedance(daily: pd.DataFrame | pd.Series, threshold: float = 1e-3) -> pd.DataFrame:
     """Compute exceedance probability from daily data.
 
     Parameters
@@ -112,16 +112,18 @@ def compute_exceedance(daily: pd.DataFrame | pd.Series, threshold: float = 1e-3)
         daily = daily.to_frame()
     _daily = daily[daily > threshold].copy()
     ranks = _daily.rank(ascending=False, pct=True) * 100
-    fdc = [
-        pd.DataFrame({c: _daily[c], f"{c}_rank": ranks[c]})
-        .sort_values(by=f"{c}_rank")
-        .reset_index(drop=True)
-        for c in daily
-    ]
-    return pd.concat(fdc, axis=1)
+    return pd.concat(
+        (
+            pd.DataFrame({c: _daily[c], f"{c}_rank": ranks[c]})
+            .sort_values(by=f"{c}_rank")
+            .reset_index(drop=True)
+            for c in daily
+        ),
+        axis=1,
+    )
 
 
-def __to_numpy(arr: ArrayLike, no_nan: bool = True) -> npt.NDArray[np.float64]:
+def __to_numpy(arr: ArrayLike, no_nan: bool = True) -> FloatArray:
     """Convert array to numpy array."""
     if isinstance(arr, (pd.Series, pd.DataFrame)):
         q = arr.to_numpy("f8")
@@ -133,7 +135,7 @@ def __to_numpy(arr: ArrayLike, no_nan: bool = True) -> npt.NDArray[np.float64]:
         raise InputTypeError(
             "discharge", "pandas.Series, pandas.DataFrame, numpy.ndarray or xarray.DataArray"
         )
-    q = cast("npt.NDArray[np.float64]", q)
+    q = cast("FloatArray", q)
 
     if no_nan and np.isnan(q).any():
         raise InputTypeError("discharge", "array/dataframe without NaN values")
@@ -143,9 +145,7 @@ def __to_numpy(arr: ArrayLike, no_nan: bool = True) -> npt.NDArray[np.float64]:
     return q
 
 
-def compute_fdc_slope(
-    discharge: ArrayLike, bins: tuple[int, ...], log: bool
-) -> npt.NDArray[np.float64]:
+def fdc_slope(discharge: ArrayLike, bins: tuple[int, ...], log: bool) -> FloatArray:
     """Compute FDC slopes between the given lower and upper percentiles.
 
     Parameters
@@ -177,7 +177,32 @@ def compute_fdc_slope(
     return slp
 
 
-def compute_mean_monthly(daily: DF, index_abbr: bool = False, cms: bool = False) -> DF:
+def flashiness_index(daily: ArrayLike) -> FloatArray:
+    """Compute flashiness index from daily data following Baker et al. (2004).
+
+    Parameters
+    ----------
+    daily : pandas.Series or pandas.DataFrame or numpy.ndarray or xarray.DataArray
+        The data to be processed
+
+    Returns
+    -------
+    numpy.ndarray
+        Flashiness index.
+
+    References
+    ----------
+    Baker, D.B., Richards, R.P., Loftus, T.T. and Kramer, J.W., 2004. A new
+    flashiness index: Characteristics and applications to midwestern rivers
+    and streams 1. JAWRA Journal of the American Water Resources
+    Association, 40(2), pp.503-522.
+    """
+    q = __to_numpy(daily)
+    q = np.diff(q, axis=1) / q[:, :-1]
+    return np.nanmean(np.abs(q), axis=1)
+
+
+def mean_monthly(daily: DF, index_abbr: bool = False, cms: bool = False) -> DF:
     """Compute mean monthly summary from daily data.
 
     Parameters
@@ -210,14 +235,14 @@ def compute_mean_monthly(daily: DF, index_abbr: bool = False, cms: bool = False)
     return mean_month
 
 
-def compute_rolling_mean_monthly(daily: DF) -> DF:
+def rolling_mean_monthly(daily: DF) -> DF:
     """Compute rolling mean monthly."""
     dayofyear = daily.index.dayofyear
     return daily.rolling(30).mean().groupby(dayofyear).mean()
 
 
 @ngjit("f8[::1](f8[::1], f8)")
-def __forward_pass(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np.float64]:
+def __forward_pass(q: FloatArray, alpha: float) -> FloatArray:
     """Perform forward pass of the Lyne and Hollick filter."""
     qb = np.zeros_like(q)
     qb[0] = q[0]
@@ -230,7 +255,7 @@ def __forward_pass(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np.f
 
 
 @ngjit("f8[:,::1](f8[:,::1], f8)", parallel=True)
-def __batch_forward(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np.float64]:
+def __batch_forward(q: FloatArray, alpha: float) -> FloatArray:
     """Perform forward pass of the Lyne and Hollick filter."""
     qb = np.zeros_like(q)
     for i in prange(q.shape[0]):
@@ -239,7 +264,7 @@ def __batch_forward(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np.
 
 
 @ngjit("f8[::1](f8[::1], f8)")
-def __backward_pass(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np.float64]:
+def __backward_pass(q: FloatArray, alpha: float) -> FloatArray:
     """Perform backward pass of the Lyne and Hollick filter."""
     qf = np.zeros_like(q)
     qf[-1] = q[-1]
@@ -252,7 +277,7 @@ def __backward_pass(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np.
 
 
 @ngjit("f8[:,::1](f8[:,::1], f8)", parallel=True)
-def __batch_backward(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np.float64]:
+def __batch_backward(q: FloatArray, alpha: float) -> FloatArray:
     """Perform forward pass of the Lyne and Hollick filter."""
     qb = np.zeros_like(q)
     for i in prange(q.shape[0]):
@@ -260,7 +285,7 @@ def __batch_backward(q: npt.NDArray[np.float64], alpha: float) -> npt.NDArray[np
     return qb
 
 
-def compute_baseflow(
+def baseflow(
     discharge: ArrayVar, alpha: float = 0.925, n_passes: int = 3, pad_width: int = 10
 ) -> ArrayVar:
     """Extract baseflow using the Lyne and Hollick filter (Ladson et al., 2013).
@@ -298,7 +323,7 @@ def compute_baseflow(
 
     q = __to_numpy(discharge)
     q = np.apply_along_axis(np.pad, 1, q, pad_width, "edge")
-    q = cast("npt.NDArray[np.float64]", q)
+    q = cast("FloatArray", q)
     qb = __batch_forward(q, alpha)
     passes = int(round(0.5 * (n_passes - 1)))
     for _ in range(passes):
@@ -315,7 +340,7 @@ def compute_baseflow(
     return qb
 
 
-def compute_bfi(
+def baseflow_index(
     discharge: ArrayLike, alpha: float = 0.925, n_passes: int = 3, pad_width: int = 10
 ) -> np.float64:
     """Compute the baseflow index using the Lyne and Hollick filter (Ladson et al., 2013).
@@ -340,26 +365,26 @@ def compute_bfi(
     qsum = discharge.sum()
     if qsum < EPS:
         return np.float64(0.0)
-    qb = compute_baseflow(discharge, alpha, n_passes, pad_width)
+    qb = baseflow(discharge, alpha, n_passes, pad_width)
     return qb.sum() / qsum
 
 
 @overload
-def compute_ai(pet: pd.Series, prcp: pd.Series) -> np.float64:
+def aridity_index(pet: pd.Series, prcp: pd.Series) -> np.float64:
     ...
 
 
 @overload
-def compute_ai(pet: pd.DataFrame, prcp: pd.DataFrame) -> pd.Series[float]:
+def aridity_index(pet: pd.DataFrame, prcp: pd.DataFrame) -> pd.Series[float]:
     ...
 
 
 @overload
-def compute_ai(pet: xr.DataArray, prcp: xr.DataArray) -> xr.DataArray:
+def aridity_index(pet: xr.DataArray, prcp: xr.DataArray) -> xr.DataArray:
     ...
 
 
-def compute_ai(
+def aridity_index(
     pet: pd.Series[float] | pd.DataFrame | xr.DataArray,
     prcp: pd.Series[float] | pd.DataFrame | xr.DataArray,
 ) -> np.float64 | pd.Series[float] | xr.DataArray:
@@ -399,7 +424,7 @@ def compute_ai(
     raise InputTypeError("pet/prcp", "pandas.Series/DataFrame or xarray.DataArray")
 
 
-def compute_si_walsh(data: pd.Series[float] | pd.DataFrame) -> pd.Series[float]:
+def seasonality_index_walsh(data: pd.Series[float] | pd.DataFrame) -> pd.Series[float]:
     """Compute seasonality index based on Walsh and Lawler, 1981 method."""
     annual = data.resample("Y", kind="period").sum()
     monthly = data.resample("M", kind="period").sum()
@@ -414,7 +439,7 @@ def compute_si_walsh(data: pd.Series[float] | pd.DataFrame) -> pd.Series[float]:
     return si
 
 
-def compute_si_markham(data: pd.Series[float] | pd.DataFrame) -> pd.DataFrame:
+def seasonality_index_markham(data: pd.Series[float] | pd.DataFrame) -> pd.DataFrame:
     """Compute seasonality index based on Markham, 1970."""
     if isinstance(data, pd.Series):
         data = data.to_frame()
@@ -524,7 +549,7 @@ class SignaturesFloat(NamedTuple):
 
     bfi: np.float64
     runoff_ratio: np.float64
-    fdc_slope: npt.NDArray[np.float64]
+    fdc_slope: FloatArray
     mean_monthly: pd.DataFrame
     streamflow_elasticity: np.float64
     seasonality_index: np.float64
@@ -590,7 +615,7 @@ class HydroSignatures:
 
     def bfi(self) -> np.float64:
         """Compute Baseflow Index."""
-        return compute_bfi(self.q_mmpt.to_numpy("f8"), self.bfi_alpha)
+        return baseflow_index(self.q_mmpt.to_numpy("f8"), self.bfi_alpha)
 
     def runoff_ratio(self) -> np.float64:
         """Compute total runoff ratio."""
@@ -598,32 +623,32 @@ class HydroSignatures:
 
     def fdc(self) -> pd.DataFrame:
         """Compute exceedance probability (for flow duration curve)."""
-        return compute_exceedance(self.q_mmpt.to_frame("q"))
+        return exceedance(self.q_mmpt.to_frame("q"))
 
     def mean_monthly(self) -> pd.DataFrame:
         """Compute mean monthly flow (for regime curve)."""
         return pd.DataFrame(
             {
-                "streamflow": compute_mean_monthly(self.q_mmpt, index_abbr=True),
-                "precipitation": compute_mean_monthly(self.p_mmpt, index_abbr=True),
+                "streamflow": mean_monthly(self.q_mmpt, index_abbr=True),
+                "precipitation": mean_monthly(self.p_mmpt, index_abbr=True),
             }
         )
 
     def seasonality_index(self) -> np.float64:
         """Compute seasonality index."""
         if self.si_method == "walsh":
-            return np.float64(compute_si_walsh(self.q_mmpt).iloc[0])
+            return np.float64(seasonality_index_walsh(self.q_mmpt).iloc[0])
         if self.si_method == "markham":
-            return np.float64(compute_si_markham(self.q_mmpt).seasonality_index.iloc[0])
+            return np.float64(seasonality_index_markham(self.q_mmpt).seasonality_index.iloc[0])
         raise InputValueError("method", ["walsh", "markham"])
 
     def mean_annual_flood(self) -> np.float64:
         """Compute mean annual flood."""
         return np.float64(self.q_mmpt.resample("Y").max().mean())
 
-    def fdc_slope(self) -> npt.NDArray[np.float64]:
+    def fdc_slope(self) -> FloatArray:
         """Compute FDC slopes between a list of lower and upper percentiles."""
-        return compute_fdc_slope(self.q_mmpt, self.fdc_slope_bins, True)
+        return fdc_slope(self.q_mmpt, self.fdc_slope_bins, True)
 
     def streamflow_elasticity(self) -> np.float64:
         """Compute streamflow elasticity."""
