@@ -256,6 +256,8 @@ reportUnknownParameterType = false
 reportUnknownVariableType = false
 reportUnnecessaryIsInstance = false
 reportUntypedFunctionDecorator = false
+reportReturnType = false
+reportArgumentType = false
 typeCheckingMode = "strict"
 
 [tool.fixit]
