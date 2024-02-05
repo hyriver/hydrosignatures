@@ -31,6 +31,7 @@ class InputValueError(Exception):
         super().__init__(self.message)
 
     def __str__(self) -> str:
+        """Return the error message."""
         return self.message
 
 
@@ -54,6 +55,7 @@ class InputTypeError(TypeError):
         super().__init__(self.message)
 
     def __str__(self) -> str:
+        """Return the error message."""
         return self.message
 
 
@@ -73,4 +75,5 @@ class InputRangeError(Exception):
         super().__init__(self.message)
 
     def __str__(self) -> str:
+        """Return the error message."""
         return self.message
