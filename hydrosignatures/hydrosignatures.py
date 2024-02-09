@@ -18,6 +18,7 @@ from scipy import signal
 from hydrosignatures.exceptions import InputRangeError, InputTypeError, InputValueError
 
 pandas_lt2 = int(pd.__version__.split(".")[0]) < 2
+warnings.filterwarnings("ignore", message=".*Converting to PeriodArray/Index.*")
 YEAR_END = "Y" if pandas_lt2 else "YE"
 MONTH_END = "M" if pandas_lt2 else "ME"
 
