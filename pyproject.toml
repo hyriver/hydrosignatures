@@ -258,6 +258,7 @@ reportUnnecessaryIsInstance = false
 reportUntypedFunctionDecorator = false
 reportReturnType = false
 reportArgumentType = false
+reportAttributeAccessIssue = false
 typeCheckingMode = "strict"
 
 [tool.fixit]
