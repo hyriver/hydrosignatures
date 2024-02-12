@@ -1,5 +1,5 @@
 """Function for computing hydrologic signature."""
-# pyright: reportGeneralTypeIssues=false, reportAttributeAccessIssue=false
+# pyright: reportGeneralTypeIssues=false
 from __future__ import annotations
 
 import calendar
@@ -24,10 +24,10 @@ MONTH_END = "M" if pandas_lt2 else "ME"
 
 try:
     from numba import config as numba_config
-    from numba import jit, prange
+    from numba import njit, prange
 
-    ngjit = functools.partial(jit, nopython=True, nogil=True)  # pyright: ignore[reportAssignmentType]
-    numba_config.THREADING_LAYER = "workqueue"  # pyright: ignore[reportGeneralTypeIssues]
+    ngjit = functools.partial(njit, nogil=True)  # pyright: ignore[reportAssignmentType]
+    numba_config.THREADING_LAYER = "workqueue"
     has_numba = True
 except ImportError:
     has_numba = False
