@@ -74,7 +74,7 @@ line-length = 100
 
 [tool.ruff]
 target-version = "py38"
-select = [
+lint.select = [
     # flake8-bugbear
     "B",
     # flake8-comprehensions
@@ -139,7 +139,7 @@ exclude = [
     ".nox",
 ]
 
-ignore = [
+lint.ignore = [
     "D103",
     "D105",
     "E501",
@@ -150,17 +150,17 @@ ignore = [
 ]
 line-length = 100
 
-[tool.ruff.flake8-bugbear]
+[tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = [
     "chr",
     "typer.Argument",
     "typer.Option",
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*.py" = [
     "D100",
     "D101",
@@ -182,7 +182,7 @@ convention = "numpy"
     "RUF012",
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = [
   "async_retriever",
   "pygeoogc",
@@ -192,6 +192,7 @@ known-first-party = [
   "hydrosignatures",
   "pygeohydro",
   "pydaymet",
+  "pygridmet",
   "pynldas2",
 ]
 
