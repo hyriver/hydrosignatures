@@ -1,4 +1,5 @@
 """Top-level package for HydroSignatures."""
+
 from importlib.metadata import PackageNotFoundError, version
 
 from hydrosignatures.exceptions import InputRangeError, InputTypeError, InputValueError

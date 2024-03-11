@@ -1,4 +1,5 @@
 """Tests for HydroSignatures package."""
+
 from __future__ import annotations
 
 import io

@@ -1,4 +1,5 @@
 """Function for computing hydrologic signature."""
+
 # pyright: reportGeneralTypeIssues=false
 from __future__ import annotations
 
@@ -372,18 +373,15 @@ def baseflow_index(
 
 
 @overload
-def aridity_index(pet: pd.Series, prcp: pd.Series) -> np.float64:
-    ...
+def aridity_index(pet: pd.Series, prcp: pd.Series) -> np.float64: ...
 
 
 @overload
-def aridity_index(pet: pd.DataFrame, prcp: pd.DataFrame) -> pd.Series:
-    ...
+def aridity_index(pet: pd.DataFrame, prcp: pd.DataFrame) -> pd.Series: ...
 
 
 @overload
-def aridity_index(pet: xr.DataArray, prcp: xr.DataArray) -> xr.DataArray:
-    ...
+def aridity_index(pet: xr.DataArray, prcp: xr.DataArray) -> xr.DataArray: ...
 
 
 def aridity_index(
