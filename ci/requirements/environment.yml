@@ -9,7 +9,7 @@ dependencies:
 - scipy
 - xarray
 # optional deps
-- numba
+- numba>=0.57
 - numbagg
 
 # test deps
