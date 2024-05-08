@@ -2,6 +2,7 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
+from hydrosignatures import exceptions
 from hydrosignatures.exceptions import InputRangeError, InputTypeError, InputValueError
 from hydrosignatures.hydrosignatures import (
     HydroSignatures,
@@ -43,4 +44,6 @@ __all__ = [
     "seasonality_index_markham",
     "extract_extrema",
     "show_versions",
+    "exceptions",
+    "__version__",
 ]
