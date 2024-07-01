@@ -211,7 +211,6 @@ filterwarnings = [
 ]
 testpaths = [
   "tests",
-  "src/hydrosignatures",
 ]
 markers = [
   "speedup: Tests that require numba>=0.57",
