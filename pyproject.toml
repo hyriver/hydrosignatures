@@ -1,8 +1,9 @@
 [build-system]
-build-backend = "setuptools.build_meta"
+build-backend = "hatchling.build"
+
 requires = [
-  "setuptools>=60",
-  "setuptools-scm>=8",
+  "hatch-vcs",
+  "hatchling",
 ]
 
 [project]
@@ -54,26 +55,13 @@ urls.CI = "https://github.com/hyriver/hydrosignatures/actions"
 urls.Homepage = "https://docs.hyriver.io/readme/hydrosignatures.html"
 urls.Issues = "https://github.com/hyriver/hydrosignatures/issues"
 
-[tool.setuptools]
-include-package-data = true
-license-files = [
-  "LICENSE",
-]
-platforms = [
-  "any",
-]
-zip-safe = false
+[tool.hatch.version]
+source = "vcs"
 
-[tool.setuptools.package-data]
-hydrosignatures = [
-  "py.typed",
+[tool.hatch.build.targets.wheel]
+packages = [
+  "src/hydrosignatures",
 ]
-
-[tool.setuptools.packages]
-find = { namespaces = false }
-
-[tool.setuptools_scm]
-fallback_version = "999"
 
 [tool.black]
 lint.extend-safe-fixes = [
@@ -223,7 +211,7 @@ filterwarnings = [
 ]
 testpaths = [
   "tests",
-  "hydrosignatures",
+  "src/hydrosignatures",
 ]
 markers = [
   "speedup: Tests that require numba>=0.57",
@@ -244,7 +232,7 @@ omit = [
 ]
 parallel = true
 source = [
-  'hydrosignatures',
+  'src/hydrosignatures',
 ]
 
 [tool.pyright]
@@ -255,7 +243,7 @@ exclude = [
   "tests/",
 ]
 include = [
-  "hydrosignatures",
+  "src/hydrosignatures",
 ]
 reportMissingTypeStubs = false
 reportUnknownArgumentType = false
