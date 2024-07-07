@@ -213,6 +213,9 @@ filterwarnings = [
 testpaths = [
   "tests",
 ]
+markers = [
+  "speedup: Tests that require numba>=0.57",
+]
 
 [tool.coverage.report]
 exclude_lines = [
