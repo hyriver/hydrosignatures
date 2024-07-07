@@ -26,6 +26,11 @@ def datasets() -> tuple[pd.Series, pd.Series, dict[str, Any]]:
     return df.q_mmpd, df.p_mmpd, sig_expected
 
 
+@pytest.fixture()
+def streamflow() -> tuple[pd.Series, pd.Series, dict[str, Any]]:
+    return pd.read_csv(Path("tests", "test_streamflow.csv"), index_col=0).squeeze()
+
+
 @pytest.mark.speedup()
 def test_signatures(datasets):
     q_mmpd, p_mmpd, sig_expected = datasets
@@ -34,6 +39,13 @@ def test_signatures(datasets):
     mm = sig_expected.pop("mean_monthly")
     assert all(np.isclose(sig_dict[key], val, rtol=1.0e-3) for key, val in sig_expected.items())
     assert np.allclose(pd.DataFrame(mm), sig.values.mean_monthly)
+
+
+@pytest.mark.speedup()
+def test_recession(streamflow):
+    mrc, k = hs.baseflow_recession(streamflow)
+    assert_close(mrc.max(), 70.7921)
+    assert_close(k, 0.0560)
 
 
 def test_show_versions():
