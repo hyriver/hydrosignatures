@@ -3,13 +3,11 @@
 from importlib.metadata import PackageNotFoundError, version
 
 from hydrosignatures import exceptions
+from hydrosignatures.baseflow import baseflow, baseflow_index, baseflow_recession
 from hydrosignatures.exceptions import InputRangeError, InputTypeError, InputValueError
 from hydrosignatures.hydrosignatures import (
     HydroSignatures,
     aridity_index,
-    baseflow,
-    baseflow_index,
-    baseflow_recession,
     exceedance,
     extract_extrema,
     flashiness_index,
