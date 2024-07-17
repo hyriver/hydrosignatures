@@ -1,6 +1,4 @@
 """Function for computing hydrologic signature."""
-
-# pyright: reportGeneralTypeIssues=false
 from __future__ import annotations
 
 import functools
@@ -11,7 +9,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 import xarray as xr
-from scipy import interpolate, optimize, signal, sparse, stats
+from scipy import interpolate, optimize, sparse, stats
 
 from hydrosignatures.exceptions import InputRangeError, InputTypeError, InputValueError
 
