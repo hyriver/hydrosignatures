@@ -1,4 +1,5 @@
 """Function for computing hydrologic signature."""
+
 from __future__ import annotations
 
 import functools
