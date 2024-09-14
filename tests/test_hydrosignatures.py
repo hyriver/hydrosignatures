@@ -18,7 +18,7 @@ def assert_close(a: float, b: float) -> None:
     np.testing.assert_allclose(a, b, rtol=1e-3)
 
 
-@pytest.fixture()
+@pytest.fixture
 def datasets() -> tuple[pd.Series, pd.Series, dict[str, Any]]:
     df = pd.read_csv(Path("tests", "test_data.csv"), index_col=0, parse_dates=True)
     with Path("tests", "test_data.json").open("r") as f:
@@ -26,12 +26,12 @@ def datasets() -> tuple[pd.Series, pd.Series, dict[str, Any]]:
     return df.q_mmpd, df.p_mmpd, sig_expected
 
 
-@pytest.fixture()
+@pytest.fixture
 def streamflow() -> tuple[pd.Series, pd.Series, dict[str, Any]]:
     return pd.read_csv(Path("tests", "test_streamflow.csv"), index_col=0).squeeze()
 
 
-@pytest.mark.speedup()
+@pytest.mark.speedup
 def test_signatures(datasets):
     q_mmpd, p_mmpd, sig_expected = datasets
     sig = hs.HydroSignatures(q_mmpd, p_mmpd)
@@ -41,7 +41,7 @@ def test_signatures(datasets):
     assert np.allclose(pd.DataFrame(mm), sig.values.mean_monthly)
 
 
-@pytest.mark.speedup()
+@pytest.mark.speedup
 def test_recession(streamflow):
     mrc, k = hs.baseflow_recession(streamflow)
     assert_close(mrc.max(), 70.7921)
