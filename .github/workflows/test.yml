@@ -23,7 +23,7 @@ jobs:
       REPO_NAME: ${{ github.event.repository.name }}
     defaults:
       run:
-        shell: bash -leo pipefail {0}
+        shell: bash -l {0}
     strategy:
       matrix:
         python-version: [3.9, '3.12']
