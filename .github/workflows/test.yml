@@ -39,11 +39,9 @@ jobs:
     - name: Setup micromamba
       uses: mamba-org/setup-micromamba@v2
       with:
+        micromamba-version: latest
         environment-file: ${{ env.CONDA_ENV_FILE }}
         environment-name: ${{ env.REPO_NAME }}-tests
-        init-shell: >-
-          bash
-          powershell
         create-args: >-
           python=${{ env.PYTHON_VERSION }}
         post-cleanup: 'all'
