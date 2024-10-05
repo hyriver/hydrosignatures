@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 import hydrosignatures as hs
-from hydrosignatures import InputTypeError
+from hydrosignatures.exceptions import InputTypeError
 
 
 def test_same_input_length():
