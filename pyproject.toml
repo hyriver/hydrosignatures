@@ -35,7 +35,7 @@ dynamic = [
   "version",
 ]
 dependencies = [
-  "numpy>=1.21",
+  "numpy>=2",
   "pandas>=1",
   "scipy",
   "xarray>=2023.1",
