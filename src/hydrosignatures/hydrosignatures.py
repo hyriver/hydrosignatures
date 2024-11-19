@@ -1,6 +1,5 @@
 """Function for computing hydrologic signature."""
 
-# pyright: reportGeneralTypeIssues=false
 from __future__ import annotations
 
 import calendar
@@ -33,16 +32,16 @@ if TYPE_CHECKING:
 
 __all__ = [
     "HydroSignatures",
-    "flood_moments",
+    "aridity_index",
     "exceedance",
-    "flow_duration_curve_slope",
+    "extract_extrema",
     "flashiness_index",
+    "flood_moments",
+    "flow_duration_curve_slope",
     "mean_monthly",
     "rolling_mean_monthly",
-    "aridity_index",
-    "seasonality_index_walsh",
     "seasonality_index_markham",
-    "extract_extrema",
+    "seasonality_index_walsh",
 ]
 
 

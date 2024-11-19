@@ -46,9 +46,9 @@ if TYPE_CHECKING:
     ArrayLike = Union[pd.Series, pd.DataFrame, FloatArray, xr.DataArray]
 
 __all__ = [
-    "baseflow_recession",
     "baseflow",
     "baseflow_index",
+    "baseflow_recession",
 ]
 
 
