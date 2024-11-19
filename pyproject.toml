@@ -63,13 +63,6 @@ packages = [
   "src/hydrosignatures",
 ]
 
-[tool.black]
-lint.extend-safe-fixes = [
-  # absolute imports
-  "TID252",
-]
-line-length = 100
-
 [tool.ruff]
 target-version = "py39"
 line-length = 100
@@ -267,10 +260,3 @@ reportReturnType = false
 reportArgumentType = false
 reportAttributeAccessIssue = false
 typeCheckingMode = "strict"
-
-[tool.fixit]
-formatter = "ufmt"
-
-[tool.refurb]
-python_version = "3.9"
-quiet = true
