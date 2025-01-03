@@ -95,6 +95,8 @@ lint.select = [
   "N",
   # compatibility with numpy 2.0
   "NPY201",
+  # Perflint
+  "PERF",
   # pygrep-hooks
   "PGH",
   # misc lints
@@ -123,7 +125,7 @@ lint.select = [
   # flake8-print
   "T20",
   # type-checking imports
-  "TCH",
+  "TC",
   # tidy imports
   "TID",
   # tryceratops
@@ -142,8 +144,18 @@ lint.ignore = [
   "E501",
   # conflict with ruff-formatter
   "ISC001",
+  # specific type error ignored
+  "PGH003",
   "PLR0913",
   "PLR2004",
+  # url schema
+  "S310",
+  "S603",
+  # shell command
+  "S605",
+  "S607",
+  # custom exception
+  "TRY003",
 ]
 
 lint.per-file-ignores."tests/*.py" = [
@@ -155,16 +167,10 @@ lint.per-file-ignores."tests/*.py" = [
   "D105",
   "D106",
   "D107",
-  # use of "eval"
-  "PGH001",
-  # Mutable class attributes
-  "RUF012",
+  # specific type error ignored
+  "PGH003",
   # use of "assert"
   "S101",
-  # use of "exec"
-  "S102",
-  # possible hardcoded password
-  "S106",
 ]
 lint.extend-safe-fixes = [
   # absolute imports
@@ -182,6 +188,8 @@ lint.isort.known-first-party = [
   "pygridmet",
   "pynldas2",
 ]
+lint.isort.required-imports = [ "from __future__ import annotations" ]
+
 lint.pydocstyle.convention = "numpy"
 
 [tool.codespell]
@@ -256,4 +264,5 @@ reportUntypedFunctionDecorator = false
 reportReturnType = false
 reportArgumentType = false
 reportAttributeAccessIssue = false
+reportInvalidTypeForm = false
 typeCheckingMode = "strict"

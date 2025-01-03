@@ -415,7 +415,7 @@ def baseflow_recession(
     )
 
     if len(flow_section) == 0:
-        raise ValueError("No recession segments found.")  # noqa: TRY003
+        raise ValueError("No recession segments found.")
     elif len(flow_section) < 10:
         warnings.warn(
             "Fewer than 10 recession segments extracted, results might not be robust.",
