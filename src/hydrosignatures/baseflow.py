@@ -41,7 +41,7 @@ except ImportError:
 
 EPS = np.float64(1e-6)
 if TYPE_CHECKING:
-    FloatArray = npt.NDArray[np.float64]
+    FloatArray = npt.NDArray[np.floating]
     ArrayVar = TypeVar("ArrayVar", pd.Series, pd.DataFrame, FloatArray, xr.DataArray)
     ArrayLike = Union[pd.Series, pd.DataFrame, FloatArray, xr.DataArray]
 
@@ -201,7 +201,7 @@ def _exponential_mrc(streamflow: FloatArray, flow_section: npt.NDArray[np.int64]
 
 def _get_nonparam_matrix(
     segments: list[FloatArray], flow_vals: FloatArray, numflows: int
-) -> tuple[sparse.coo_matrix, FloatArray, list[int]]:
+) -> tuple[sparse.coo_array, FloatArray, list[int]]:
     """Get matrix for non-parametric analytic method."""
     msp_matrix, b_matrix, mcount, mspcount, bad_segs = [], [], 0, 0, []
 
@@ -244,7 +244,7 @@ def _get_nonparam_matrix(
         mspcount += nf if i == 0 else 2 * nf
 
     rows, cols, data = zip(*msp_matrix)
-    m_sparse = sparse.coo_matrix((data, (rows, cols)), shape=(mcount, len(segments) - 1 + numflows))
+    m_sparse = sparse.coo_array((data, (rows, cols)), shape=(mcount, len(segments) - 1 + numflows))
     b_mat = -np.array(b_matrix)
     return m_sparse, b_mat, bad_segs
 
@@ -303,7 +303,8 @@ def _nonparametric_analytic_mrc(
 
     for i in sorted(bad_segs, reverse=True):
         m_sparse = m_sparse.tocsc()
-        m_sparse = m_sparse[:, list(range(i - 1)) + list(range(i, m_sparse.shape[1]))]
+        col_idx = list(range(i - 1)) + list(range(i, m_sparse.shape[1]))
+        m_sparse = m_sparse[:, col_idx]  # pyright: ignore[reportOptionalSubscript]
 
     mrc_solve = optimize.lsq_linear(m_sparse, b_mat).x
 
