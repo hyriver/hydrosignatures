@@ -48,7 +48,6 @@ optional-dependencies.jit = [
 optional-dependencies.test = [
   "pytest-cov",
   "pytest-sugar",
-  "pytest-xdist[psutil]",
 ]
 urls.Changelog = "https://docs.hyriver.io/changelogs/hydrosignatures.html"
 urls.CI = "https://github.com/hyriver/hydrosignatures/actions"
