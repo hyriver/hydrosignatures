@@ -31,7 +31,7 @@ def streamflow() -> tuple[pd.Series, pd.Series, dict[str, Any]]:
     return pd.read_csv(Path("tests", "test_streamflow.csv"), index_col=0).squeeze()
 
 
-@pytest.mark.speedup
+@pytest.mark.jit
 def test_signatures(datasets):
     q_mmpd, p_mmpd, sig_expected = datasets
     sig = hs.HydroSignatures(q_mmpd, p_mmpd)
@@ -41,7 +41,7 @@ def test_signatures(datasets):
     assert np.allclose(pd.DataFrame(mm), sig.values.mean_monthly)
 
 
-@pytest.mark.speedup
+@pytest.mark.jit
 def test_recession(streamflow):
     mrc, k = hs.baseflow_recession(streamflow)
     assert_close(mrc.max(), 70.7921)
