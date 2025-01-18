@@ -2,6 +2,13 @@
 History
 =======
 
+0.19.0 (2025-01-17)
+-------------------
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+- A release without change to match the version of other HyRiver packages.
+
 0.18.0 (2024-10-05)
 -------------------
 
