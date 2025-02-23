@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import json
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -46,6 +47,14 @@ def test_recession(streamflow):
     mrc, k = hs.baseflow_recession(streamflow)
     assert_close(mrc.max(), 70.7921)
     assert_close(k, 0.0560)
+
+
+def test_plot(datasets):
+    q_mmpd, p_mmpd, _ = datasets
+    hs.plot.signatures(q_mmpd, precipitation=p_mmpd, output="data/gh.plot.png")
+    hs.plot.signatures(q_mmpd, precipitation=p_mmpd)
+    shutil.rmtree("data")
+    assert True
 
 
 def test_show_versions():
