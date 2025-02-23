@@ -2,6 +2,15 @@
 History
 =======
 
+0.19.3 (2025-XX-XX)
+-------------------
+
+New Features
+~~~~~~~~~~~~
+- Move the plotting functionality of PyGeoHydro for signatures
+  to this package. HydroSignatures now has a ``plot`` module with
+  two public functions: ``signatures`` and ``prepare_plot_data``.
+
 0.19.0 (2025-01-17)
 -------------------
 
