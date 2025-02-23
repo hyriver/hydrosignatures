@@ -45,6 +45,9 @@ optional-dependencies.jit = [
   "numba>=0.57",
   "numbagg",
 ]
+optional-dependencies.plot = [
+  "matplotlib",
+]
 optional-dependencies.test = [
   "pytest-cov",
   "pytest-sugar",
