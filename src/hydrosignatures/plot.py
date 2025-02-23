@@ -8,20 +8,23 @@ from __future__ import annotations
 
 from dataclasses import dataclass, fields
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+import pandas as pd
 
-from hydrosignatures.hydrosignatures import mean_monthly, exceedance
 from hydrosignatures.exceptions import InputTypeError
+from hydrosignatures.hydrosignatures import exceedance, mean_monthly
 
 if TYPE_CHECKING:
-    import pandas as pd
+    from matplotlib.artist import Artist
+    from matplotlib.axes import Axes
+
 
 __all__ = ["prepare_plot_data", "signatures"]
 
 
 @dataclass(frozen=True)
-class PlotDataType:
+class _PlotDataType:
     """Data structure for plotting hydrologic signatures."""
 
     daily: pd.DataFrame
@@ -36,7 +39,7 @@ class PlotDataType:
         return tuple(field.name for field in fields(cls))
 
 
-def prepare_plot_data(daily: pd.DataFrame | pd.Series) -> PlotDataType:
+def prepare_plot_data(daily: pd.DataFrame | pd.Series) -> _PlotDataType:
     """Generate a structured data for plotting hydrologic signatures.
 
     Parameters
@@ -65,25 +68,25 @@ def prepare_plot_data(daily: pd.DataFrame | pd.Series) -> PlotDataType:
         "mm/month",
         "mm/day",
     ]
-    _fields = PlotDataType.fields()
+    _fields = _PlotDataType.fields()
     titles = dict(zip(_fields[:-1], _titles))
     units = dict(zip(_fields[:-1], _units))
-    return PlotDataType(daily, mean_month, ranked, titles, units)
+    return _PlotDataType(daily, mean_month, ranked, titles, units)
 
 
 def _prepare_plot_data(
     daily: pd.DataFrame | pd.Series,
-    precipitation: pd.DataFrame | pd.Series | None = None,
-) -> tuple[PlotDataType, PlotDataType | None]:
+    prcp: pd.DataFrame | pd.Series | None = None,
+) -> tuple[_PlotDataType, _PlotDataType | None]:
     if not isinstance(daily, (pd.DataFrame, pd.Series)):
         raise InputTypeError("daily", "pandas.DataFrame or pandas.Series")
 
     discharge = prepare_plot_data(daily)
-    if precipitation is not None:
-        if isinstance(precipitation, pd.DataFrame) and precipitation.shape[1] == 1:
-            prcp = prepare_plot_data(precipitation.squeeze())  # pyright: ignore[reportArgumentType]
-        elif isinstance(precipitation, pd.Series):
-            prcp = prepare_plot_data(precipitation)
+    if prcp is not None:
+        if isinstance(prcp, pd.DataFrame) and prcp.shape[1] == 1:
+            prcp = prepare_plot_data(prcp.squeeze())  # pyright: ignore[reportArgumentType]
+        elif isinstance(prcp, pd.Series):
+            prcp = prepare_plot_data(prcp)
         else:
             raise InputTypeError(
                 "precipitation", "pandas.Series or pandas.DataFrame with one column"
@@ -92,6 +95,45 @@ def _prepare_plot_data(
         prcp = None
 
     return discharge, prcp
+
+
+def _add_prcp(
+    prcp: pd.DataFrame | pd.Series,
+    ax: Axes,
+    daily: pd.DataFrame,
+    lines: list[Artist],
+    labels: list[Any],
+) -> tuple[list[Artist], list[Any]]:
+    """Add precipitation to the plot."""
+    _prcp = prcp.daily.squeeze()
+    _prcp = _prcp.loc[daily.index[0] : daily.index[-1]]
+    label = "$P$ (mm/day)"
+    ax_p = ax.twinx()
+    ax_p.grid(False)
+    if _prcp.shape[0] > 1000:
+        ax_p.plot(
+            _prcp,
+            alpha=0.7,
+            color="g",
+            label=label,
+        )
+    else:
+        ax_p.bar(
+            _prcp.index,
+            _prcp.to_numpy().ravel(),
+            alpha=0.7,
+            width=1,
+            color="g",
+            align="edge",
+            label=label,
+        )
+    ax_p.set_ylim(_prcp.max() * 2.5, 0)
+    ax_p.set_ylabel(label)
+    ax_p.set_xmargin(0)
+    lines_p, labels_p = ax_p.get_legend_handles_labels()
+    lines.extend(lines_p)
+    labels.extend(labels_p)
+    return lines, labels
 
 
 def signatures(
@@ -129,9 +171,7 @@ def signatures(
     try:
         import matplotlib.pyplot as plt
     except ImportError as e:
-        raise ImportError(
-            "matplotlib is required for plotting. Please install it."
-        ) from e
+        raise ImportError("matplotlib is required for plotting. Please install it.") from e
     qdaily, prcp = _prepare_plot_data(discharge, precipitation)
 
     daily = qdaily.daily
@@ -147,34 +187,7 @@ def signatures(
     ax.text(0.02, 0.9, "(a)", transform=ax.transAxes, ha="left", va="center", fontweight="bold")
 
     if prcp is not None:
-        _prcp = prcp.daily.squeeze()
-        _prcp = _prcp.loc[daily.index[0] : daily.index[-1]]
-        label = "$P$ (mm/day)"
-        ax_p = ax.twinx()
-        ax_p.grid(False)
-        if _prcp.shape[0] > 1000:
-            ax_p.plot(
-                _prcp,
-                alpha=0.7,
-                color="g",
-                label=label,
-            )
-        else:
-            ax_p.bar(
-                _prcp.index,
-                _prcp.to_numpy().ravel(),
-                alpha=0.7,
-                width=1,
-                color="g",
-                align="edge",
-                label=label,
-            )
-        ax_p.set_ylim(_prcp.max() * 2.5, 0)
-        ax_p.set_ylabel(label)
-        ax_p.set_xmargin(0)
-        lines_p, labels_p = ax_p.get_legend_handles_labels()
-        lines.extend(lines_p)
-        labels.extend(labels_p)
+        lines, labels = _add_prcp(prcp, ax, daily, lines, labels)
 
     ax.set_xmargin(0)
     ax.set_xlabel("")
