@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version
 
-from hydrosignatures import exceptions
+from hydrosignatures import exceptions, plot
 from hydrosignatures.baseflow import baseflow, baseflow_index, baseflow_recession
 from hydrosignatures.hydrosignatures import (
     HydroSignatures,
@@ -30,6 +30,7 @@ __all__ = [
     "HydroSignatures",
     "__version__",
     "aridity_index",
+    "plot",
     "baseflow",
     "baseflow_index",
     "baseflow_recession",
