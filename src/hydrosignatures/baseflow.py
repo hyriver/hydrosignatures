@@ -497,7 +497,7 @@ def baseflow(
     q = np.apply_along_axis(np.pad, 1, q, pad_width, "edge")
     q = cast("FloatArray", q)
     qb = __batch_forward(q, alpha_)
-    passes = int(round(0.5 * (n_passes - 1)))
+    passes = round(0.5 * (n_passes - 1))
     for _ in range(passes):
         qb = __batch_forward(__batch_backward(qb, alpha_), alpha_)
     qb = np.ascontiguousarray(qb[:, pad_width:-pad_width])
